@@ -17,6 +17,7 @@ export type WaitlistRequestBody = {
   company?: string;
   market?: string;
   expectedPrice?: string;
+  missingFeedback?: string;
   hasAdvsrLogin: boolean;
   toneProfile?: ToneResponses;
   generatedOutput?: string;

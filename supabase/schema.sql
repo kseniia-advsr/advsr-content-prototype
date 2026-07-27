@@ -9,6 +9,7 @@ create table if not exists waitlist_submissions (
   company text,
   market text,
   expected_price text,
+  missing_feedback text,
   has_advsr_login boolean not null default false,
   tone_profile jsonb not null default '{}'::jsonb,
   generated_output text,

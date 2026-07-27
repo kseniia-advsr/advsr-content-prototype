@@ -1,5 +1,3 @@
-import { Logo } from "./Logo";
-
 export function Sidebar({
   onNewContent,
   onGetFullAccess,
@@ -10,10 +8,7 @@ export function Sidebar({
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-advsr-border md:flex">
       <div className="flex h-16 items-center gap-2 px-4">
-        <Logo className="h-5 w-auto" />
-        <span className="font-heading text-lg font-bold tracking-wide text-advsr-text">
-          AD<span className="text-advsr-orange">V</span>SR
-        </span>
+        <img src="/logo.png" alt="ADVSR" className="h-5 w-auto" />
         <span className="text-sm font-medium text-advsr-muted">Content Engine</span>
       </div>
 
@@ -33,7 +28,7 @@ export function Sidebar({
 
       <div className="flex-1" />
 
-      <div className="border-t border-advsr-border p-3">
+      <div className="border-t border-advsr-border px-3 pb-2 pt-3">
         <button
           type="button"
           onClick={onGetFullAccess}

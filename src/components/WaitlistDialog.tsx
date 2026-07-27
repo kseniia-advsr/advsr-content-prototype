@@ -8,11 +8,20 @@ export type WaitlistSubmission = {
   company: string;
   country: string;
   expectedPrice: string;
+  missingFeedback: string;
   hasAdvsrLogin: boolean;
 };
 
 const ADVSR_LOGIN_URL = "https://advsr.ai/login";
 const CONTACT_EMAIL = "kseniia@advsr.ai";
+
+function RequiredMark() {
+  return (
+    <span className="ml-0.5 text-advsr-orange" aria-hidden="true">
+      *
+    </span>
+  );
+}
 
 function AccountToggle({
   hasAccount,
@@ -43,8 +52,8 @@ function AccountToggle({
       >
         <span
           className={
-            "absolute top-0.5 size-5 rounded-full bg-white transition-transform " +
-            (hasAccount ? "translate-x-0.5" : "translate-x-[22px]")
+            "absolute left-0.5 top-0.5 size-5 rounded-full bg-white transition-transform " +
+            (hasAccount ? "translate-x-0" : "translate-x-5")
           }
         />
       </button>
@@ -82,6 +91,7 @@ export function WaitlistDialog({
   const [company, setCompany] = useState("");
   const [country, setCountry] = useState("");
   const [priceAmount, setPriceAmount] = useState("");
+  const [missingFeedback, setMissingFeedback] = useState("");
   const [hasAdvsrLogin, setHasAdvsrLogin] = useState(false);
 
   const canSubmit =
@@ -103,13 +113,14 @@ export function WaitlistDialog({
       company: company.trim(),
       country: country.trim(),
       expectedPrice: `$${priceAmount.trim()}`,
+      missingFeedback: missingFeedback.trim(),
       hasAdvsrLogin,
     });
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-8">
-      <div className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-advsr-border bg-advsr-surface">
+      <div className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-advsr-border bg-advsr-surface">
         <button
           type="button"
           onClick={onClose}
@@ -149,94 +160,116 @@ export function WaitlistDialog({
               <form onSubmit={handleSubmit} className="mt-6 space-y-5">
                 <AccountToggle hasAccount={hasAdvsrLogin} onChange={setHasAdvsrLogin} />
 
-                <div>
-                  <label className="text-sm font-medium text-advsr-text" htmlFor="wl-first">
-                    First Name
-                  </label>
-                  <input
-                    id="wl-first"
-                    required
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    className="mt-1.5 w-full rounded-lg border border-advsr-border bg-advsr-bg px-3 py-2 text-advsr-text focus:border-advsr-orange focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-advsr-text" htmlFor="wl-last">
-                    Last Name
-                  </label>
-                  <input
-                    id="wl-last"
-                    required
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    className="mt-1.5 w-full rounded-lg border border-advsr-border bg-advsr-bg px-3 py-2 text-advsr-text focus:border-advsr-orange focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-advsr-text" htmlFor="wl-email">
-                    Email
-                  </label>
-                  <input
-                    id="wl-email"
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="mt-1.5 w-full rounded-lg border border-advsr-border bg-advsr-bg px-3 py-2 text-advsr-text focus:border-advsr-orange focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-advsr-text" htmlFor="wl-company">
-                    Company
-                  </label>
-                  <input
-                    id="wl-company"
-                    required
-                    value={company}
-                    onChange={(e) => setCompany(e.target.value)}
-                    className="mt-1.5 w-full rounded-lg border border-advsr-border bg-advsr-bg px-3 py-2 text-advsr-text focus:border-advsr-orange focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-advsr-text" htmlFor="wl-country">
-                    Country
-                  </label>
-                  <input
-                    id="wl-country"
-                    list="wl-country-options"
-                    required
-                    autoComplete="off"
-                    value={country}
-                    onChange={(e) => setCountry(e.target.value)}
-                    placeholder="Start typing..."
-                    className="mt-1.5 w-full rounded-lg border border-advsr-border bg-advsr-bg px-3 py-2 text-advsr-text placeholder:text-advsr-muted focus:border-advsr-orange focus:outline-none"
-                  />
-                  <datalist id="wl-country-options">
-                    {COUNTRIES.map((c) => (
-                      <option key={c.code} value={c.name} />
-                    ))}
-                  </datalist>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium text-advsr-text" htmlFor="wl-price">
-                    What are your monthly price expectations of the Engine?
-                  </label>
-                  <div className="mt-1.5 flex w-full items-stretch overflow-hidden rounded-lg border border-advsr-border bg-advsr-bg focus-within:border-advsr-orange">
-                    <span className="flex items-center pl-3 text-advsr-muted select-none">$</span>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-sm font-medium text-advsr-text" htmlFor="wl-first">
+                      First Name
+                      <RequiredMark />
+                    </label>
                     <input
-                      id="wl-price"
+                      id="wl-first"
                       required
-                      inputMode="decimal"
-                      value={priceAmount}
-                      onChange={(e) => setPriceAmount(e.target.value)}
-                      placeholder="150/month"
-                      className="w-full bg-transparent py-2 pl-1 pr-3 text-advsr-text placeholder:text-advsr-muted focus:outline-none"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="mt-1.5 w-full rounded-lg border border-advsr-border bg-advsr-bg px-3 py-2 text-advsr-text focus:border-advsr-orange focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-advsr-text" htmlFor="wl-last">
+                      Last Name
+                      <RequiredMark />
+                    </label>
+                    <input
+                      id="wl-last"
+                      required
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="mt-1.5 w-full rounded-lg border border-advsr-border bg-advsr-bg px-3 py-2 text-advsr-text focus:border-advsr-orange focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-advsr-text" htmlFor="wl-email">
+                      Email
+                      <RequiredMark />
+                    </label>
+                    <input
+                      id="wl-email"
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="mt-1.5 w-full rounded-lg border border-advsr-border bg-advsr-bg px-3 py-2 text-advsr-text focus:border-advsr-orange focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-advsr-text" htmlFor="wl-company">
+                      Company
+                      <RequiredMark />
+                    </label>
+                    <input
+                      id="wl-company"
+                      required
+                      value={company}
+                      onChange={(e) => setCompany(e.target.value)}
+                      className="mt-1.5 w-full rounded-lg border border-advsr-border bg-advsr-bg px-3 py-2 text-advsr-text focus:border-advsr-orange focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-advsr-text" htmlFor="wl-country">
+                      Country
+                      <RequiredMark />
+                    </label>
+                    <input
+                      id="wl-country"
+                      list="wl-country-options"
+                      required
+                      autoComplete="off"
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      placeholder="Start typing..."
+                      className="mt-1.5 w-full rounded-lg border border-advsr-border bg-advsr-bg px-3 py-2 text-advsr-text placeholder:text-advsr-muted focus:border-advsr-orange focus:outline-none"
+                    />
+                    <datalist id="wl-country-options">
+                      {COUNTRIES.map((c) => (
+                        <option key={c.code} value={c.name} />
+                      ))}
+                    </datalist>
+                  </div>
+
+                  <div>
+                    <label className="text-sm font-medium text-advsr-text" htmlFor="wl-price">
+                      What are your monthly price expectations?
+                      <RequiredMark />
+                    </label>
+                    <div className="mt-1.5 flex w-full items-stretch overflow-hidden rounded-lg border border-advsr-border bg-advsr-bg focus-within:border-advsr-orange">
+                      <span className="flex items-center pl-3 text-advsr-muted select-none">$</span>
+                      <input
+                        id="wl-price"
+                        required
+                        inputMode="decimal"
+                        value={priceAmount}
+                        onChange={(e) => setPriceAmount(e.target.value)}
+                        className="w-full bg-transparent py-2 pl-1 pr-3 text-advsr-text placeholder:text-advsr-muted focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium text-advsr-text" htmlFor="wl-missing">
+                    What's missing from the final build?
+                  </label>
+                  <div className="mt-1.5 w-full overflow-hidden rounded-lg border border-advsr-border bg-advsr-bg focus-within:border-advsr-orange">
+                    <textarea
+                      id="wl-missing"
+                      rows={2}
+                      value={missingFeedback}
+                      onChange={(e) => setMissingFeedback(e.target.value)}
+                      className="w-full resize-none bg-transparent px-3 py-2 text-advsr-text placeholder:text-advsr-muted focus:outline-none"
                     />
                   </div>
                 </div>

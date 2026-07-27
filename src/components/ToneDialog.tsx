@@ -1,4 +1,10 @@
-import { TONE_SECTIONS, type ToneResponses, type ToneField } from "../engine/toneProfile";
+import {
+  TONE_SECTIONS,
+  type ToneResponses,
+  type ToneField,
+  type ToneResponseValue,
+  type ToneSection,
+} from "../engine/toneProfile";
 import { MultiSelectField } from "./fields/MultiSelectField";
 import { SingleSelectField } from "./fields/SingleSelectField";
 import { TextField } from "./fields/TextField";
@@ -19,6 +25,30 @@ const PROTOTYPE_SECTION_IDS = [
   "personal",
   "free_context",
 ];
+
+function isAnswered(value: ToneResponseValue | undefined): boolean {
+  if (Array.isArray(value)) return value.length > 0;
+  if (typeof value === "string") return value.trim().length > 0;
+  if (typeof value === "number") return true;
+  return false;
+}
+
+/** Fields actually rendered for a section, given the current responses (e.g. the personal-life follow-ups only show once opted in). */
+function visibleFieldsForSection(section: ToneSection, responses: ToneResponses) {
+  const sharePersonal = responses["share_personal"];
+  const optedIntoPersonal = typeof sharePersonal === "string" && sharePersonal.startsWith("Yes");
+  return section.fields.filter((field) => {
+    if (field.type === "channels") return false;
+    if ((field.id === "personal_ok" || field.id === "personal_offlimits") && !optedIntoPersonal) {
+      return false;
+    }
+    return true;
+  });
+}
+
+function isSectionComplete(section: ToneSection, responses: ToneResponses) {
+  return visibleFieldsForSection(section, responses).every((field) => isAnswered(responses[field.id]));
+}
 
 export function ToneDialog({
   responses,
@@ -46,6 +76,10 @@ export function ToneDialog({
   const optedIntoPersonal =
     typeof sharePersonal === "string" && sharePersonal.startsWith("Yes");
 
+  const sectionComplete = section ? isSectionComplete(section, responses) : false;
+  const firstIncompleteIndex = sections.findIndex((s) => !isSectionComplete(s, responses));
+  const maxReachableIndex = firstIncompleteIndex === -1 ? sections.length - 1 : firstIncompleteIndex;
+
   if (!section) return null;
 
   return (
@@ -66,11 +100,13 @@ export function ToneDialog({
             <button
               key={s.id}
               type="button"
-              onClick={() => onSectionIndexChange(i)}
+              onClick={() => i <= maxReachableIndex && onSectionIndexChange(i)}
+              disabled={i > maxReachableIndex}
               aria-label={`Go to ${s.title}`}
               className={
                 "h-1.5 flex-1 rounded-full transition-colors " +
-                (i <= sectionIndex ? "bg-advsr-orange" : "bg-advsr-border")
+                (i <= sectionIndex ? "bg-advsr-orange " : "bg-advsr-border ") +
+                (i > maxReachableIndex ? "cursor-not-allowed" : "")
               }
             />
           ))}
@@ -157,7 +193,8 @@ export function ToneDialog({
             <button
               type="button"
               onClick={onFinish}
-              className="rounded-lg bg-advsr-orange px-4 py-2 font-heading font-semibold text-black transition-opacity hover:opacity-90"
+              disabled={!sectionComplete}
+              className="rounded-lg bg-advsr-orange px-4 py-2 font-heading font-semibold text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Start creating
             </button>
@@ -165,7 +202,8 @@ export function ToneDialog({
             <button
               type="button"
               onClick={() => onSectionIndexChange(Math.min(sections.length - 1, sectionIndex + 1))}
-              className="rounded-lg bg-advsr-orange px-4 py-2 font-heading font-semibold text-black transition-opacity hover:opacity-90"
+              disabled={!sectionComplete}
+              className="rounded-lg bg-advsr-orange px-4 py-2 font-heading font-semibold text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Next ›
             </button>

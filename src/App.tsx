@@ -84,11 +84,11 @@ export default function App() {
     [...messages].reverse().find((m) => m.role === "assistant")?.content ?? "";
 
   // Auto-open the waitlist dialog once the reader has scrolled the response
-  // to the bottom, or after 90s of no scroll/mouse/keyboard activity —
+  // to the bottom, or after 60s of no scroll/mouse/keyboard activity —
   // whichever comes first. Only arms after the one premium generation lands.
   const gate = useCallback(() => patch({ waitlistOpen: true }), []);
   const hasAssistantReply = messages.some((m) => m.role === "assistant");
-  useIdleOrScrollGate(hasAssistantReply && !waitlistOpen && !waitlistSubmitted, gate, 90000);
+  useIdleOrScrollGate(hasAssistantReply && !waitlistOpen && !waitlistSubmitted, gate, 60000);
 
   const handleWaitlist = async (wl: WaitlistSubmission) => {
     setWaitlistSubmitting(true);
@@ -103,6 +103,7 @@ export default function App() {
           company: wl.company || undefined,
           market: wl.country || undefined,
           expectedPrice: wl.expectedPrice || undefined,
+          missingFeedback: wl.missingFeedback || undefined,
           hasAdvsrLogin: Boolean(wl.hasAdvsrLogin),
           toneProfile: toneResponses,
           generatedOutput: lastAssistantOutput,

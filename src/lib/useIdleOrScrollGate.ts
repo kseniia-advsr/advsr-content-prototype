@@ -7,7 +7,7 @@ import { useEffect, useRef } from "react";
  * any activity, so an engaged reader who's still scrolling and re-reading
  * doesn't get cut off at a fixed mark.
  */
-export function useIdleOrScrollGate(active: boolean, onGate: () => void, idleMs = 90000) {
+export function useIdleOrScrollGate(active: boolean, onGate: () => void, idleMs = 60000) {
   const firedRef = useRef(false);
   const onGateRef = useRef(onGate);
   onGateRef.current = onGate;

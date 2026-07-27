@@ -36,6 +36,10 @@ export async function waitlistHandler(rawBody: unknown): Promise<HandlerResult> 
       typeof body.expectedPrice === "string" && body.expectedPrice.trim()
         ? body.expectedPrice.trim()
         : null,
+    missing_feedback:
+      typeof body.missingFeedback === "string" && body.missingFeedback.trim()
+        ? body.missingFeedback.trim()
+        : null,
     has_advsr_login: Boolean(body.hasAdvsrLogin),
     tone_profile: body.toneProfile ?? {},
     generated_output: typeof body.generatedOutput === "string" ? body.generatedOutput : null,
