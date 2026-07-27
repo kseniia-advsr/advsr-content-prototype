@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+/*
+ * ADVSR brand tokens, pulled from the live advsr.ai marketing site: black
+ * background, white text, Ubuntu headings, Open Sans body, orange accent
+ * (the "V" in the ADVSR wordmark).
+ */
+@theme {
+  --font-heading: "Ubuntu", sans-serif;
+  --font-body: "Open Sans", sans-serif;
+
+  --color-advsr-bg: #0a0a0a;
+  --color-advsr-surface: #161616;
+  --color-advsr-border: #2a2a2a;
+  --color-advsr-orange: #ff6b00;
+  --color-advsr-orange-2: #ff8133;
+  --color-advsr-text: #f5f5f5;
+  --color-advsr-muted: #a3a3a3;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+h1,
+h2,
+h3,
+.font-heading {
+  font-family: var(--font-heading);
+}
