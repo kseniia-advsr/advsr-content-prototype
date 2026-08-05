@@ -25,12 +25,15 @@ export type ContentTypeOption = {
 };
 
 /**
- * The full-suite platforms, individually selectable, in the order offered
- * everywhere else (breakdown cards, platform picker). TikTok isn't offered on
- * its own — its clarifying-question flow needed a text input the "picking"
- * composer doesn't have once it's not the very first prompt, so it's folded
- * into "YouTube / TikTok" (id stays `youtube_script`) as one general
- * short-form-video deliverable instead.
+ * The full-suite platforms actually generatable one at a time. TikTok isn't
+ * offered as its own generate button here — its clarifying-question flow
+ * needed a text input the "picking" composer doesn't have once it's not the
+ * very first prompt — so it's folded into "YouTube / TikTok" (id stays
+ * `youtube_script`) as one general short-form-video deliverable instead.
+ * The insights funnel and tone questionnaire still offer TikTok and YouTube
+ * Shorts as separate platform choices (see ALL_PLATFORMS in
+ * contentEngine.ts) — this merge is specific to the generate button, not a
+ * claim that they're the same platform.
  */
 export const PLATFORM_CONTENT_TYPES: ContentTypeOption[] = [
   { id: "linkedin_post", label: "LinkedIn", description: "Professional, authority-led text post" },

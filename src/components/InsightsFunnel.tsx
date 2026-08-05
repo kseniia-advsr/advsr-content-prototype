@@ -10,7 +10,8 @@ const PLATFORM_BREAKDOWN: { name: string; bestFor: string }[] = [
   { name: "LinkedIn", bestFor: "Best for: market updates, career news, buyer and seller tips" },
   { name: "Instagram", bestFor: "Best for: property walkthroughs, listing reels, quick Stories" },
   { name: "Facebook", bestFor: "Best for: client success stories, local updates, easy shares" },
-  { name: "YouTube / TikTok", bestFor: "Best for: quick vertical hooks and listing teasers, built to cross-post to TikTok, YouTube Shorts, and Reels" },
+  { name: "TikTok", bestFor: "Best for: head-to-camera tips, quick walkthroughs, new audiences" },
+  { name: "YouTube Shorts", bestFor: "Best for: quick vertical hooks, listing teasers, fast market takes" },
   { name: "X", bestFor: "Best for: quick market takes, quick thoughts" },
 ];
 
@@ -31,7 +32,7 @@ const PLATFORM_BELIEF_FIELD: ToneField = {
   id: "platform_belief",
   label: "Which single platform do you think matters most for you?",
   type: "single",
-  options: ["LinkedIn", "Instagram", "Facebook", "YouTube / TikTok", "X", "Not sure"],
+  options: ["LinkedIn", "Instagram", "Facebook", "TikTok", "YouTube Shorts", "X", "Not sure"],
 };
 
 const RECOMMENDED_FREQUENCY_LABEL = `about ${RECOMMENDED_POSTS_PER_WEEK} times a week`;

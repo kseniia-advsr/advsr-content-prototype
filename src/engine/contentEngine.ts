@@ -87,12 +87,20 @@ const PLATFORM_BLUEPRINTS: Record<string, string> = {
     "## Instagram\n(a Carousel outline, 3 to 5 slides of on-slide copy, then the Instagram caption with 4 to 6 hashtags)",
   Facebook:
     "## Facebook\n(the Facebook post version, warm and community minded)",
-  "YouTube / TikTok":
-    "## YouTube / TikTok\n(3 Title options, a Teleprompter script sized for a short-form video, a short B-roll shot list, then a closing note on cross-posting to TikTok, YouTube Shorts, and Instagram Reels)",
+  TikTok:
+    "## TikTok\n(a short punchy TikTok script with a first three second hook and on screen text cues)",
+  "YouTube Shorts":
+    "## YouTube Shorts\n(one Title, a Teleprompter script sized for a Short, then a short B-roll shot list)",
   X: "## X\n(a tweet thread, numbered, each tweet on its own line)",
 };
 
-export const ALL_PLATFORMS = ["LinkedIn", "Instagram", "Facebook", "YouTube / TikTok", "X"];
+// Kept as separate entries (matching how the insights funnel and tone
+// questionnaire still offer them) even though the generate button folds them
+// into one "YouTube / TikTok" content type (see PLATFORM_CONTENT_TYPES in
+// contentTypes.ts) — that merge exists only to work around TikTok's
+// clarifying-question flow needing a text input the platform-picking
+// composer doesn't have, not because the two are the same platform choice.
+export const ALL_PLATFORMS = ["LinkedIn", "Instagram", "Facebook", "TikTok", "YouTube Shorts", "X"];
 
 /**
  * Builds the full-suite guidance, scoped to the given platforms. When no
