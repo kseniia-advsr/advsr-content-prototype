@@ -135,12 +135,24 @@ export default function App() {
     });
   };
 
+  // Holds the exact args of the most recent runGenerate call so the error
+  // banner's reload button can replay it verbatim — whether that was
+  // sending a topic, answering a clarifying question, or picking another
+  // platform — without needing to know which of those it was.
+  const lastGenerateArgsRef = useRef<{
+    topic: string;
+    contentType: ContentTypeId;
+    qa: ClarifyingQa[];
+    alreadyValidated: boolean;
+  } | null>(null);
+
   const runGenerate = async (
     topic: string,
     contentType: ContentTypeId,
     qa: ClarifyingQa[],
     alreadyValidated = false
   ) => {
+    lastGenerateArgsRef.current = { topic, contentType, qa, alreadyValidated };
     patch({ isLoading: true, generateError: null });
     try {
       const res = await fetch("/api/generate", {
@@ -179,6 +191,16 @@ export default function App() {
     } catch {
       patch({ isLoading: false, generateError: "Could not reach the content engine. Please try again." });
     }
+  };
+
+  // Reported behavior: a timed-out generation often succeeds outright on a
+  // second attempt, so the error banner's reload button just replays the
+  // exact same call rather than making the visitor retype a prompt or
+  // re-click a platform.
+  const retryLastGenerate = () => {
+    const last = lastGenerateArgsRef.current;
+    if (!last) return;
+    void runGenerate(last.topic, last.contentType, last.qa, last.alreadyValidated);
   };
 
   const lastMessage = messages[messages.length - 1];
@@ -295,10 +317,24 @@ export default function App() {
       <Sidebar onNewContent={resetSession} newContentDisabled={funnelPending} />
 
       <div className="flex min-w-0 flex-1 flex-col">
+        {/* Styled to blend in rather than alarm — most of these are a
+            transient timeout that succeeds outright on the exact same retry,
+            not a real failure, so it reads as a normal picker-style box
+            with a reload action rather than a red warning. */}
         {generateError && (
-          <p className="mx-auto w-full max-w-2xl px-6 pt-4 text-sm text-red-400">
-            {generateError}
-          </p>
+          <div className="mx-auto w-full max-w-2xl px-6 pt-4">
+            <div className="flex items-center justify-between gap-3 rounded-2xl border border-advsr-border bg-advsr-surface px-4 py-3 shadow-lg">
+              <p className="text-sm text-advsr-muted">{generateError}</p>
+              <button
+                type="button"
+                onClick={retryLastGenerate}
+                aria-label="Try again"
+                className="flex size-8 shrink-0 items-center justify-center rounded-full border border-advsr-border text-advsr-muted transition-colors hover:border-advsr-orange-2 hover:text-advsr-text"
+              >
+                ↻
+              </button>
+            </div>
+          </div>
         )}
 
         <div className="min-h-0 flex-1 overflow-y-auto">
