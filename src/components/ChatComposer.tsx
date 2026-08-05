@@ -163,31 +163,28 @@ export function ChatComposer({
       </form>
 
       {mode === "topic" && (
-        <div className="mx-auto w-full max-w-3xl rounded-2xl border border-advsr-border bg-advsr-surface p-4 shadow-lg">
-          <p className="mb-3 text-sm font-medium text-advsr-text">Which platform are you posting on?</p>
-          <div className="flex flex-wrap gap-2">
-            {PLATFORM_CONTENT_TYPES.map((option) => {
-              const selected = contentType === option.id;
-              return (
-                <button
-                  key={option.id}
-                  type="button"
-                  onClick={() => setContentType(option.id)}
-                  disabled={disabled}
-                  aria-pressed={selected}
-                  className={
-                    "rounded-full border px-3 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50 " +
-                    (selected
-                      ? "border-advsr-orange bg-advsr-orange/15 text-advsr-orange"
-                      : "border-advsr-border text-advsr-muted hover:border-advsr-orange-2 hover:text-advsr-text")
-                  }
-                >
-                  {option.label}
-                </button>
-              );
-            })}
-            <FullSuiteButton onClick={onFullSuiteRequested} disabled={disabled} />
-          </div>
+        <div className="mx-auto flex w-full max-w-3xl flex-wrap justify-center gap-2">
+          {PLATFORM_CONTENT_TYPES.map((option) => {
+            const selected = contentType === option.id;
+            return (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => setContentType(option.id)}
+                disabled={disabled}
+                aria-pressed={selected}
+                className={
+                  "rounded-full border px-3 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50 " +
+                  (selected
+                    ? "border-advsr-orange bg-advsr-orange/15 text-advsr-orange"
+                    : "border-advsr-border text-advsr-muted hover:border-advsr-orange-2 hover:text-advsr-text")
+                }
+              >
+                {option.label}
+              </button>
+            );
+          })}
+          <FullSuiteButton onClick={onFullSuiteRequested} disabled={disabled} />
         </div>
       )}
     </div>
