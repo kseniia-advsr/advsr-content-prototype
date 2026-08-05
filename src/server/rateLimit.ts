@@ -7,7 +7,7 @@
  */
 const WINDOW_MS = 60 * 60 * 1000;
 // One visitor working through every platform (LinkedIn, Instagram, Facebook,
-// TikTok, YouTube, X) now fires a separate /api/generate call per platform
+// TikTok, YouTube Shorts, X) now fires a separate /api/generate call per platform
 // pick rather than one combined call, so the cap needs enough headroom for a
 // full run plus a couple of retries, not just a single generation.
 const MAX_PER_WINDOW = 8;

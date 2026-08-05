@@ -271,7 +271,7 @@ export const TONE_SECTIONS: ToneSection[] = [
         label: "Which platforms do you want help creating content for?",
         type: "multi",
         help: "Select all you post on. We will only generate deliverables for these, to save you time.",
-        options: ["LinkedIn", "Instagram", "Facebook", "TikTok", "YouTube", "X"],
+        options: ["LinkedIn", "Instagram", "Facebook", "TikTok", "YouTube Shorts", "X"],
       },
       {
         id: "visibility",

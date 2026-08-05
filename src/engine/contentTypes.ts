@@ -28,10 +28,10 @@ export type ContentTypeOption = {
 /** The 6 full-suite platforms, individually selectable, in the order offered everywhere else (breakdown cards, platform picker). */
 export const PLATFORM_CONTENT_TYPES: ContentTypeOption[] = [
   { id: "linkedin_post", label: "LinkedIn", description: "Professional, authority-led text post" },
-  { id: "instagram_caption", label: "Instagram", description: "Short, hook-led caption with hashtags" },
+  { id: "instagram_caption", label: "Instagram", description: "Carousel outline and caption with hashtags" },
   { id: "facebook_post", label: "Facebook", description: "Warm, community-minded post" },
   { id: "tiktok_script", label: "TikTok", description: "Short punchy script with an on-screen hook" },
-  { id: "youtube_script", label: "YouTube", description: "Narrative, teleprompter script, titles and thumbnails" },
+  { id: "youtube_script", label: "YouTube Shorts", description: "Title, script, and B-roll list" },
   { id: "x_thread", label: "X", description: "Numbered tweet thread" },
 ];
 

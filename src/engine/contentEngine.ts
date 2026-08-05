@@ -84,17 +84,17 @@ const PLATFORM_BLUEPRINTS: Record<string, string> = {
   LinkedIn:
     "## LinkedIn\n(the full LinkedIn text post, hook first, authority led, ending with 3 to 5 hashtags)",
   Instagram:
-    "## Instagram\n(the Instagram caption, then a Carousel outline slide by slide, then 8 to 12 hashtags)",
+    "## Instagram\n(a Carousel outline, 4 to 6 slides of on-slide copy, then the Instagram caption with 5 to 8 hashtags)",
   Facebook:
     "## Facebook\n(the Facebook post version, warm and community minded)",
   TikTok:
     "## TikTok\n(a short punchy TikTok script with a first three second hook and on screen text cues)",
-  YouTube:
-    "## YouTube\n(a video narrative, then a Teleprompter script for natural delivery, then Title variations, then Thumbnail text suggestions, then a B roll shot list)",
+  "YouTube Shorts":
+    "## YouTube Shorts\n(one Title, a Teleprompter script sized for a Short, then a short B-roll shot list)",
   X: "## X\n(a tweet thread, numbered, each tweet on its own line)",
 };
 
-export const ALL_PLATFORMS = ["LinkedIn", "Instagram", "Facebook", "TikTok", "YouTube", "X"];
+export const ALL_PLATFORMS = ["LinkedIn", "Instagram", "Facebook", "TikTok", "YouTube Shorts", "X"];
 
 /**
  * Builds the full-suite guidance, scoped to the given platforms. When no
@@ -129,14 +129,14 @@ const CONTENT_TYPE_GUIDANCE: Record<ContentTypeId, string> = {
   full_suite: buildFullSuiteGuidance(),
   linkedin_post: `DELIVERABLE MODE: LINKEDIN POST.
 Produce one polished LinkedIn post. Lead with a strong hook in the first two lines (visible before the fold), use short punchy paragraphs and line breaks for readability, build with the Tension Bridge, close the loop, and end with one clear takeaway and a soft, non salesy call to engage. Add 3 to 5 relevant hashtags at the end. Keep it authority led and human.`,
-  instagram_caption: `DELIVERABLE MODE: INSTAGRAM CAPTION.
-Produce one Instagram caption. Open with a scroll stopping first line, keep it tight and rhythmic, use the Tension Bridge in compressed form, add light line breaks, finish with a takeaway and a gentle prompt to save or share. Add a block of 8 to 12 relevant hashtags at the end.`,
+  instagram_caption: `DELIVERABLE MODE: INSTAGRAM CAROUSEL + CAPTION.
+Produce exactly two things and nothing else: a Carousel outline (4 to 6 slides, one short punchy line of on-slide copy per slide, no separate narration or design notes) carrying the Tension Bridge across the slides, then one Instagram caption, tight and rhythmic, finishing with a takeaway and a gentle prompt to save or share, plus 5 to 8 relevant hashtags. Keep the combined output no longer than a single LinkedIn post.`,
   facebook_post: `DELIVERABLE MODE: FACEBOOK POST.
 Produce one Facebook post, warm and community minded. Use the Tension Bridge to keep it engaging, keep paragraphs short and conversational, and close with a takeaway that invites comments or shares rather than a hard sell.`,
   tiktok_script: `DELIVERABLE MODE: TIKTOK SCRIPT.
 Produce one short, punchy TikTok script. Open with a hook in the first three seconds that earns the rest of the watch, write for natural spoken delivery, and include on screen text cues in brackets at the key beats. Close on the payoff, not a summary.`,
-  youtube_script: `DELIVERABLE MODE: YOUTUBE SCRIPT.
-Produce, in this order: a short video narrative outline using the Tension Bridge, then a full Teleprompter script written for natural spoken delivery, then 3 to 5 Title variations, then Thumbnail text suggestions, then a B roll shot list.`,
+  youtube_script: `DELIVERABLE MODE: YOUTUBE SHORTS.
+Produce exactly three things, in this order, nothing else: one Title, then a Teleprompter script sized for a Short (well under 60 seconds of spoken delivery), written for natural delivery, opening with a hook in the first three seconds that earns the rest of the watch and using the Tension Bridge to build and release tension, then a short B-roll shot list (4 to 6 shots). Keep the combined output no longer than a single LinkedIn post.`,
   x_thread: `DELIVERABLE MODE: X THREAD.
 Produce one tweet thread, numbered, each tweet on its own line, opening with a hook tweet that earns the reply click, building with the Tension Bridge across the thread, and closing on the payoff.`,
 };
@@ -147,7 +147,7 @@ const CONTENT_TYPE_LINE: Record<ContentTypeId, string> = {
   instagram_caption: "an Instagram caption",
   facebook_post: "a Facebook post",
   tiktok_script: "a TikTok script",
-  youtube_script: "a YouTube script",
+  youtube_script: "a YouTube Shorts script",
   x_thread: "an X thread",
 };
 
