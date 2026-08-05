@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import {
-  CONTENT_TYPES,
+  PLATFORM_CONTENT_TYPES,
   STARTER_PROMPTS,
   DEFAULT_CONTENT_TYPE,
   type ContentTypeId,
@@ -10,18 +10,33 @@ import {
 const PLACEHOLDER_ROTATION_MS = 7000;
 
 /**
- * "topic": the very first submission — content-type selector shown (every
- *   full-suite platform individually, plus Full Suite itself), rotating
- *   starter-prompt placeholders. Selecting Full Suite and sending routes to
- *   the waitlist instead of generating (see onFullSuiteRequested).
- * "answer": replying to a clarifying question — no content-type selector,
- *   short single-line placeholder.
+ * "topic": the very first submission — a platform picker (every full-suite
+ *   platform, single-select, plus Full Suite) sits below the input, rotating
+ *   starter-prompt placeholders. Choosing a platform only updates the local
+ *   selection; nothing fires until the topic is actually sent. Full Suite is
+ *   the exception — clicking it acts immediately (see onFullSuiteRequested),
+ *   since there's nothing to generate for it either way.
+ * "answer": replying to a clarifying question — no picker, short
+ *   single-line placeholder.
  * "picking": at least one platform has generated and platforms remain — the
  *   composer is replaced by a picker for the next platform, plus Full Suite.
  * "done": every platform has been used — replaced by a Get Full Access
  *   button in the same slot.
  */
 export type ComposerMode = "topic" | "answer" | "picking" | "done";
+
+function FullSuiteButton({ onClick, disabled }: { onClick: () => void; disabled: boolean }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="rounded-full bg-advsr-orange px-3 py-1.5 text-sm font-semibold text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      ✨ Full Suite
+    </button>
+  );
+}
 
 /**
  * Persistent bottom slot: the composer before the first topic and through
@@ -40,7 +55,7 @@ export function ChatComposer({
 }: {
   mode: ComposerMode;
   onSubmit: (text: string, contentType: ContentTypeId) => void;
-  /** Full Suite was selected (from the dropdown) or clicked (from the picker) — never generates, always routes to the (dismissable) waitlist instead. */
+  /** Full Suite was clicked (before or after the first prompt) — never generates, always routes to the (dismissable) waitlist instead. */
   onFullSuiteRequested: () => void;
   /** A platform pill was clicked in "picking" mode — re-sends the original topic for that platform. */
   onPickPlatform: (contentType: ContentTypeId) => void;
@@ -64,10 +79,6 @@ export function ChatComposer({
   const start = (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || disabled) return;
-    if (contentType === "full_suite") {
-      onFullSuiteRequested();
-      return;
-    }
     onSubmit(trimmed, contentType);
     setInput("");
   };
@@ -82,9 +93,7 @@ export function ChatComposer({
     return (
       <div className="bg-advsr-bg px-6 py-4">
         <div className="mx-auto w-full max-w-3xl rounded-2xl border border-advsr-border bg-advsr-surface p-4 shadow-lg">
-          <p className="mb-3 text-sm font-medium text-advsr-text">
-            Want the same idea for another platform?
-          </p>
+          <p className="mb-3 text-sm font-medium text-advsr-text">What platform are you posting on next?</p>
           <div className="flex flex-wrap gap-2">
             {remainingPlatforms.map((option) => (
               <button
@@ -97,14 +106,7 @@ export function ChatComposer({
                 {option.label}
               </button>
             ))}
-            <button
-              type="button"
-              onClick={onFullSuiteRequested}
-              disabled={disabled}
-              className="rounded-full bg-advsr-orange px-3 py-1.5 text-sm font-semibold text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              ✨ Full Suite
-            </button>
+            <FullSuiteButton onClick={onFullSuiteRequested} disabled={disabled} />
           </div>
         </div>
       </div>
@@ -126,7 +128,7 @@ export function ChatComposer({
   }
 
   return (
-    <div className="bg-advsr-bg px-6 py-4">
+    <div className="space-y-3 bg-advsr-bg px-6 py-4">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -148,24 +150,7 @@ export function ChatComposer({
           disabled={disabled}
           className="min-h-[2.25rem] w-full resize-none border-0 bg-transparent text-base text-advsr-text placeholder:text-advsr-muted focus:outline-none disabled:opacity-50"
         />
-        <div className="flex items-center justify-between gap-3 pt-2">
-          {mode === "topic" ? (
-            <select
-              value={contentType}
-              onChange={(e) => setContentType(e.target.value as ContentTypeId)}
-              disabled={disabled}
-              aria-label="Output format"
-              className="h-9 rounded-lg border border-advsr-border bg-advsr-bg px-2 text-sm text-advsr-text focus:outline-none disabled:opacity-50"
-            >
-              {CONTENT_TYPES.map((option) => (
-                <option key={option.id} value={option.id}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          ) : (
-            <span />
-          )}
+        <div className="flex items-center justify-end pt-2">
           <button
             type="submit"
             disabled={!input.trim() || disabled}
@@ -176,6 +161,35 @@ export function ChatComposer({
           </button>
         </div>
       </form>
+
+      {mode === "topic" && (
+        <div className="mx-auto w-full max-w-3xl rounded-2xl border border-advsr-border bg-advsr-surface p-4 shadow-lg">
+          <p className="mb-3 text-sm font-medium text-advsr-text">Which platform are you posting on?</p>
+          <div className="flex flex-wrap gap-2">
+            {PLATFORM_CONTENT_TYPES.map((option) => {
+              const selected = contentType === option.id;
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => setContentType(option.id)}
+                  disabled={disabled}
+                  aria-pressed={selected}
+                  className={
+                    "rounded-full border px-3 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50 " +
+                    (selected
+                      ? "border-advsr-orange bg-advsr-orange/15 text-advsr-orange"
+                      : "border-advsr-border text-advsr-muted hover:border-advsr-orange-2 hover:text-advsr-text")
+                  }
+                >
+                  {option.label}
+                </button>
+              );
+            })}
+            <FullSuiteButton onClick={onFullSuiteRequested} disabled={disabled} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

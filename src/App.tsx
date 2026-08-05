@@ -279,6 +279,15 @@ export default function App() {
     }
   };
 
+  // Reset submitted/error state on close so the *next* time the waitlist
+  // opens (e.g. a second "Full Suite" click after already joining once this
+  // session) it always shows the actual form, not a stale "You're on the
+  // list" confirmation carried over from an earlier, already-closed dialog.
+  const handleWaitlistClose = () => {
+    patch({ waitlistOpen: false, waitlistSubmitted: false });
+    setWaitlistError(null);
+  };
+
   return (
     <div className="flex h-screen overflow-hidden bg-advsr-bg">
       <Sidebar onNewContent={resetSession} newContentDisabled={funnelPending} />
@@ -336,7 +345,7 @@ export default function App() {
 
       {waitlistOpen && (
         <WaitlistDialog
-          onClose={() => patch({ waitlistOpen: false })}
+          onClose={handleWaitlistClose}
           onSubmit={handleWaitlist}
           submitting={waitlistSubmitting}
           error={waitlistError}

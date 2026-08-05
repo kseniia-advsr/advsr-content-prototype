@@ -146,7 +146,7 @@ export function WaitlistDialog({
                 You're on the list.
               </h2>
               <p className="mt-2 text-advsr-muted">
-                We'll be in touch as the full ADVSR content engine goes live.
+                Once we go live, you'll be amongst the first to receive exclusive access
               </p>
             </div>
           ) : (
@@ -157,9 +157,6 @@ export function WaitlistDialog({
               <p className="mt-2 text-advsr-muted">
                 Join the waitlist and you'll be first to use the content
                 generator with no usage limit.
-              </p>
-              <p className="mt-3 text-sm font-medium text-advsr-orange">
-                Every week you wait is a week another advisor in your market posts instead of you.
               </p>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-5">
@@ -247,7 +244,7 @@ export function WaitlistDialog({
 
                   <div>
                     <label className="text-sm font-medium text-advsr-text" htmlFor="wl-price">
-                      What are your monthly price expectations?
+                      Monthly price expectations
                       <RequiredMark />
                     </label>
                     <div className="mt-1.5 flex w-full items-stretch overflow-hidden rounded-lg border border-advsr-border bg-advsr-bg focus-within:border-advsr-orange">
