@@ -124,14 +124,14 @@ export function InsightsFunnel({ onFinish }: { onFinish: (result: InsightsFunnel
             ? platforms.length > 0
             : true;
 
-  // These two steps are pure information (platform_insight doubles as
-  // platform selection, but reads as acknowledging what's shown rather than
-  // submitting an answer), so "Continue" doesn't fit — "Got it" does. Every
-  // other step (including the influence-scale step) keeps "Continue", and
-  // the final step keeps "Let's create".
+  // frequency_interstitial and influence_scale are pure information with no
+  // input to give, so "Continue" doesn't fit — "Got it" does. platform_insight
+  // also displays information, but it doubles as platform selection (an
+  // actual choice the advisor has to make, gated by canContinue), so it keeps
+  // "Continue" like every other input step. The final step keeps "Let's create".
   const primaryLabel = isLast
     ? "Let's create"
-    : step === "frequency_interstitial" || step === "platform_insight"
+    : step === "frequency_interstitial" || step === "influence_scale"
       ? "Got it"
       : "Continue";
 
