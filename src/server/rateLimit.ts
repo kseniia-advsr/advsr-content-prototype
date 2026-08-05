@@ -6,7 +6,11 @@
  * goal is to blunt casual abuse, not to be airtight.
  */
 const WINDOW_MS = 60 * 60 * 1000;
-const MAX_PER_WINDOW = 3;
+// One visitor working through every platform (LinkedIn, Instagram, Facebook,
+// TikTok, YouTube, X) now fires a separate /api/generate call per platform
+// pick rather than one combined call, so the cap needs enough headroom for a
+// full run plus a couple of retries, not just a single generation.
+const MAX_PER_WINDOW = 8;
 
 const buckets = new Map<string, { count: number; resetAt: number }>();
 
