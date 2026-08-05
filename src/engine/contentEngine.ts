@@ -84,17 +84,15 @@ const PLATFORM_BLUEPRINTS: Record<string, string> = {
   LinkedIn:
     "## LinkedIn\n(the full LinkedIn text post, hook first, authority led, ending with 3 to 5 hashtags)",
   Instagram:
-    "## Instagram\n(a Carousel outline, 4 to 6 slides of on-slide copy, then the Instagram caption with 5 to 8 hashtags)",
+    "## Instagram\n(a Carousel outline, 3 to 5 slides of on-slide copy, then the Instagram caption with 4 to 6 hashtags)",
   Facebook:
     "## Facebook\n(the Facebook post version, warm and community minded)",
-  TikTok:
-    "## TikTok\n(a short punchy TikTok script with a first three second hook and on screen text cues)",
-  "YouTube Shorts":
-    "## YouTube Shorts\n(one Title, a Teleprompter script sized for a Short, then a short B-roll shot list)",
+  "YouTube / TikTok":
+    "## YouTube / TikTok\n(3 Title options, a Teleprompter script sized for a short-form video, a short B-roll shot list, then a closing note on cross-posting to TikTok, YouTube Shorts, and Instagram Reels)",
   X: "## X\n(a tweet thread, numbered, each tweet on its own line)",
 };
 
-export const ALL_PLATFORMS = ["LinkedIn", "Instagram", "Facebook", "TikTok", "YouTube Shorts", "X"];
+export const ALL_PLATFORMS = ["LinkedIn", "Instagram", "Facebook", "YouTube / TikTok", "X"];
 
 /**
  * Builds the full-suite guidance, scoped to the given platforms. When no
@@ -130,13 +128,11 @@ const CONTENT_TYPE_GUIDANCE: Record<ContentTypeId, string> = {
   linkedin_post: `DELIVERABLE MODE: LINKEDIN POST.
 Produce one polished LinkedIn post. Lead with a strong hook in the first two lines (visible before the fold), use short punchy paragraphs and line breaks for readability, build with the Tension Bridge, close the loop, and end with one clear takeaway and a soft, non salesy call to engage. Add 3 to 5 relevant hashtags at the end. Keep it authority led and human.`,
   instagram_caption: `DELIVERABLE MODE: INSTAGRAM CAROUSEL + CAPTION.
-Produce exactly two things and nothing else: a Carousel outline (4 to 6 slides, one short punchy line of on-slide copy per slide, no separate narration or design notes) carrying the Tension Bridge across the slides, then one Instagram caption, tight and rhythmic, finishing with a takeaway and a gentle prompt to save or share, plus 5 to 8 relevant hashtags. Keep the combined output no longer than a single LinkedIn post.`,
+Produce exactly two things and nothing else: a Carousel outline (3 to 5 slides, one short punchy line of on-slide copy per slide, no separate narration or design notes) carrying the Tension Bridge across the slides, then one Instagram caption, tight and rhythmic, finishing with a takeaway and a gentle prompt to save or share, plus 4 to 6 relevant hashtags. Keep the combined output no longer than a single LinkedIn post.`,
   facebook_post: `DELIVERABLE MODE: FACEBOOK POST.
-Produce one Facebook post, warm and community minded. Use the Tension Bridge to keep it engaging, keep paragraphs short and conversational, and close with a takeaway that invites comments or shares rather than a hard sell.`,
-  tiktok_script: `DELIVERABLE MODE: TIKTOK SCRIPT.
-Produce one short, punchy TikTok script. Open with a hook in the first three seconds that earns the rest of the watch, write for natural spoken delivery, and include on screen text cues in brackets at the key beats. Close on the payoff, not a summary.`,
-  youtube_script: `DELIVERABLE MODE: YOUTUBE SHORTS.
-Produce exactly three things, in this order, nothing else: one Title, then a Teleprompter script sized for a Short (well under 60 seconds of spoken delivery), written for natural delivery, opening with a hook in the first three seconds that earns the rest of the watch and using the Tension Bridge to build and release tension, then a short B-roll shot list (4 to 6 shots). Keep the combined output no longer than a single LinkedIn post.`,
+Produce one Facebook post, warm and community minded. Use the Tension Bridge to keep it engaging, keep paragraphs short and conversational, and close with a takeaway that invites comments or shares rather than a hard sell. Keep it no longer than a single LinkedIn post.`,
+  youtube_script: `DELIVERABLE MODE: SHORT-FORM VIDEO.
+Produce exactly four things, in this order, nothing else: 3 Title options, then a Teleprompter script for a short-form video (well under 60 seconds of spoken delivery), written for natural delivery, opening with a hook in the first three seconds that earns the rest of the watch and using the Tension Bridge to build and release tension, then a short B-roll shot list (4 to 6 shots), then one closing line noting this script works across TikTok, YouTube Shorts, and Instagram Reels. Keep the combined output no longer than a single LinkedIn post.`,
   x_thread: `DELIVERABLE MODE: X THREAD.
 Produce one tweet thread, numbered, each tweet on its own line, opening with a hook tweet that earns the reply click, building with the Tension Bridge across the thread, and closing on the payoff.`,
 };
@@ -146,8 +142,7 @@ const CONTENT_TYPE_LINE: Record<ContentTypeId, string> = {
   linkedin_post: "a LinkedIn post",
   instagram_caption: "an Instagram caption",
   facebook_post: "a Facebook post",
-  tiktok_script: "a TikTok script",
-  youtube_script: "a YouTube Shorts script",
+  youtube_script: "a short-form video script",
   x_thread: "an X thread",
 };
 
@@ -236,15 +231,17 @@ export const STANDARD_MAX_TOKENS = 4096;
  * Output ceiling for the Phase 1 premium first-generation — higher than
  * STANDARD_MAX_TOKENS since this single generation is what converts a
  * visitor into a waitlist signup, but deliberately capped well below the
- * API's own maximum. This whole full-suite generation runs as one
- * synchronous Netlify Function call with a 10-26s execution limit; a higher
- * ceiling (this was 16,000) risks the function timing out on an unusually
- * long generation before Anthropic finishes responding. 7,000 tokens is
- * still generous for a full suite across every platform (typical output is
- * well under this), while capping the worst case. Runs on CONTENT_MODEL like
- * everything else; only this ceiling is elevated.
+ * API's own maximum. This runs as one synchronous Netlify Function call with
+ * a 10-26s execution limit, so a higher ceiling risks the function timing out
+ * on an unusually long generation before Anthropic finishes responding.
+ * Every real per-platform deliverable is now explicitly instructed to run no
+ * longer than a single LinkedIn post (see CONTENT_TYPE_GUIDANCE), so 3,000
+ * tokens is still several times more than any of them should need while
+ * cutting the worst-case tail latency well below the old 7,000 ceiling. The
+ * only path that could legitimately want more is full_suite (every platform
+ * in one call), which the UI never actually invokes — see PLATFORM_CONTENT_TYPES.
  */
-export const PREMIUM_MAX_TOKENS = 7000;
+export const PREMIUM_MAX_TOKENS = 3000;
 
 /**
  * At most one clarifying question ever gets asked, and only when the topic

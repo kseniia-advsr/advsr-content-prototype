@@ -35,7 +35,7 @@ describe("buildSystemPrompt", () => {
     const prompt = buildSystemPrompt("full_suite", null, "", ["LinkedIn", "X"]);
     expect(prompt).toContain("## LinkedIn");
     expect(prompt).toContain("## X");
-    expect(prompt).not.toContain("## TikTok");
+    expect(prompt).not.toContain("## Facebook");
     expect(prompt).toContain("PLATFORM SCOPE");
   });
 
@@ -69,12 +69,13 @@ describe("CLARIFY_TURN_SYSTEM_PROMPT", () => {
 });
 
 describe("MAX_CLARIFYING_QUESTIONS", () => {
-  it("caps at exactly one question, so it can never collide with the 3/hour generate rate limit", () => {
-    // Regression guard: with a 3-request/hour rate limit on /api/generate and
-    // every clarify round-trip counted against it, a cap of 3 clarifying
-    // questions meant the request that finally generates content (the 4th
-    // call) was rejected by the rate limiter before ever reaching the
-    // generation logic. Capping at 1 keeps the worst case at 2 calls.
+  it("caps at exactly one question, so it can never collide with the generate rate limit", () => {
+    // Regression guard: every clarify round-trip counts against the
+    // /api/generate rate limit the same as a real generation call, so a
+    // higher cap could let the request that finally generates content get
+    // rejected by the limiter before ever reaching the generation logic.
+    // Capping at 1 keeps the worst case at 2 calls, comfortably under any
+    // reasonable per-session limit regardless of where that limit is set.
     expect(MAX_CLARIFYING_QUESTIONS).toBe(1);
   });
 });

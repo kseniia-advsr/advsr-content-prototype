@@ -15,7 +15,6 @@ export type ContentTypeId =
   | "linkedin_post"
   | "instagram_caption"
   | "facebook_post"
-  | "tiktok_script"
   | "youtube_script"
   | "x_thread";
 
@@ -25,13 +24,19 @@ export type ContentTypeOption = {
   description: string;
 };
 
-/** The 6 full-suite platforms, individually selectable, in the order offered everywhere else (breakdown cards, platform picker). */
+/**
+ * The full-suite platforms, individually selectable, in the order offered
+ * everywhere else (breakdown cards, platform picker). TikTok isn't offered on
+ * its own — its clarifying-question flow needed a text input the "picking"
+ * composer doesn't have once it's not the very first prompt, so it's folded
+ * into "YouTube / TikTok" (id stays `youtube_script`) as one general
+ * short-form-video deliverable instead.
+ */
 export const PLATFORM_CONTENT_TYPES: ContentTypeOption[] = [
   { id: "linkedin_post", label: "LinkedIn", description: "Professional, authority-led text post" },
   { id: "instagram_caption", label: "Instagram", description: "Carousel outline and caption with hashtags" },
   { id: "facebook_post", label: "Facebook", description: "Warm, community-minded post" },
-  { id: "tiktok_script", label: "TikTok", description: "Short punchy script with an on-screen hook" },
-  { id: "youtube_script", label: "YouTube Shorts", description: "Title, script, and B-roll list" },
+  { id: "youtube_script", label: "YouTube / TikTok", description: "3 title options, script, and B-roll list for short-form video" },
   { id: "x_thread", label: "X", description: "Numbered tweet thread" },
 ];
 
