@@ -3,6 +3,12 @@
   publish = "dist"
   functions = "netlify/functions"
 
+[build.environment]
+  # Pinned to match local dev (v26.5.0 at the time of writing) rather than
+  # leaving Netlify's build image on its own default, which may not satisfy
+  # the newer dependency set here (Vite 7, React 19, Tailwind 4).
+  NODE_VERSION = "26"
+
 [dev]
   command = "pnpm dev"
   targetPort = 5173

@@ -156,6 +156,9 @@ export function WaitlistDialog({
                 Join the waitlist and you'll be first to use the content
                 generator with no usage limit.
               </p>
+              <p className="mt-3 text-sm font-medium text-advsr-orange">
+                Every week you wait is a week another advisor in your market posts instead of you.
+              </p>
 
               <form onSubmit={handleSubmit} className="mt-6 space-y-5">
                 <AccountToggle hasAccount={hasAdvsrLogin} onChange={setHasAdvsrLogin} />

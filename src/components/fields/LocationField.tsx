@@ -69,7 +69,7 @@ export function LocationField({ label, help, value, onChange }: Props) {
         if (!cities.length) return null;
         return (
           <div key={code} className="mt-3 rounded-lg border border-advsr-border p-3">
-            <p className="text-sm text-advsr-muted">{country?.name} — key cities</p>
+            <p className="text-sm text-advsr-muted">{country?.name}: key cities</p>
             <div className="mt-2 flex flex-wrap gap-2">
               {cities.map((city) => {
                 const active = value.includes(`${code}::${city}`);

@@ -3,11 +3,29 @@ import { CONTENT_TYPES, STARTER_PROMPTS, DEFAULT_CONTENT_TYPE, type ContentTypeI
 
 const PLACEHOLDER_ROTATION_MS = 7000;
 
+/**
+ * "topic": the very first submission — content-type selector shown, rotating
+ *   starter-prompt placeholders.
+ * "answer": replying to a clarifying question — no content-type selector,
+ *   short single-line placeholder.
+ * "done": the one premium generation has landed — composer stays visible
+ *   (per the persistent-chat requirement) but is inert, since the "one
+ *   premium generation" business rule means no further free generations.
+ */
+export type ComposerMode = "topic" | "answer" | "done";
+
+/**
+ * Persistent composer, always rendered at the bottom of the screen — before
+ * the first topic, through the clarifying-question exchange, and after
+ * content has generated — rather than disappearing after one use.
+ */
 export function ChatComposer({
+  mode,
   onSubmit,
   disabled,
 }: {
-  onSubmit: (topic: string, contentType: ContentTypeId) => void;
+  mode: ComposerMode;
+  onSubmit: (text: string, contentType: ContentTypeId) => void;
   disabled: boolean;
 }) {
   const [input, setInput] = useState("");
@@ -15,37 +33,42 @@ export function ChatComposer({
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
 
   useEffect(() => {
+    if (mode !== "topic") return;
     const id = setInterval(() => {
       setPlaceholderIndex((i) => (i + 1) % STARTER_PROMPTS.length);
     }, PLACEHOLDER_ROTATION_MS);
     return () => clearInterval(id);
-  }, []);
+  }, [mode]);
 
-  const start = (topic: string) => {
-    const trimmed = topic.trim();
-    if (!trimmed || disabled) return;
+  const isDone = mode === "done";
+
+  const start = (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed || disabled || isDone) return;
     onSubmit(trimmed, contentType);
+    setInput("");
   };
 
-  return (
-    <div className="mx-auto w-full max-w-2xl px-6">
-      <div className="mb-8 flex flex-col items-center text-center">
-        <h1 className="font-heading text-3xl font-bold text-advsr-text sm:text-4xl">
-          <span className="block">Content for every platform,</span>
-          <span className="block">in one prompt.</span>
-        </h1>
-        <p className="mt-3 max-w-xl text-sm leading-relaxed text-advsr-muted">
-          <span className="block">One thought becomes 5 social media posts.</span>
-          <span className="block">No marketing team and up to 8 hours saved weekly.</span>
-        </p>
-      </div>
+  // While a response is in flight, the last message is the visitor's own
+  // reply (not yet an assistant question), so `mode` alone would momentarily
+  // read as "topic" and flash the starter-prompt placeholder — show a
+  // neutral loading placeholder instead regardless of mode.
+  const placeholder = disabled
+    ? "Thinking…"
+    : mode === "topic"
+      ? STARTER_PROMPTS[placeholderIndex]
+      : mode === "answer"
+        ? "Your answer…"
+        : "Your free generation is used. Join the waitlist for unlimited access.";
 
+  return (
+    <div className="bg-advsr-bg px-6 py-4">
       <form
         onSubmit={(e) => {
           e.preventDefault();
           start(input);
         }}
-        className="rounded-2xl border border-advsr-border bg-advsr-surface p-3 shadow-lg"
+        className="mx-auto w-full max-w-3xl rounded-2xl border border-advsr-border bg-advsr-surface p-3 shadow-lg"
       >
         <textarea
           value={input}
@@ -56,29 +79,33 @@ export function ChatComposer({
               start(input);
             }
           }}
-          placeholder={STARTER_PROMPTS[placeholderIndex]}
-          rows={3}
-          disabled={disabled}
-          className="min-h-20 w-full resize-none border-0 bg-transparent text-base text-advsr-text placeholder:text-advsr-muted focus:outline-none disabled:opacity-50"
+          placeholder={placeholder}
+          rows={mode === "topic" ? 3 : 1}
+          disabled={disabled || isDone}
+          className="min-h-[2.25rem] w-full resize-none border-0 bg-transparent text-base text-advsr-text placeholder:text-advsr-muted focus:outline-none disabled:opacity-50"
         />
         <div className="flex items-center justify-between gap-3 pt-2">
-          <select
-            value={contentType}
-            onChange={(e) => setContentType(e.target.value as ContentTypeId)}
-            disabled={disabled}
-            aria-label="Output format"
-            className="h-9 rounded-lg border border-advsr-border bg-advsr-bg px-2 text-sm text-advsr-text focus:outline-none disabled:opacity-50"
-          >
-            {CONTENT_TYPES.map((option) => (
-              <option key={option.id} value={option.id}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+          {mode === "topic" ? (
+            <select
+              value={contentType}
+              onChange={(e) => setContentType(e.target.value as ContentTypeId)}
+              disabled={disabled}
+              aria-label="Output format"
+              className="h-9 rounded-lg border border-advsr-border bg-advsr-bg px-2 text-sm text-advsr-text focus:outline-none disabled:opacity-50"
+            >
+              {CONTENT_TYPES.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <span />
+          )}
           <button
             type="submit"
-            disabled={!input.trim() || disabled}
-            aria-label="Create content"
+            disabled={!input.trim() || disabled || isDone}
+            aria-label="Send"
             className="flex size-9 shrink-0 items-center justify-center rounded-full bg-advsr-orange text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >
             ↑

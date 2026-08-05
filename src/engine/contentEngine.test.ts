@@ -1,11 +1,22 @@
 import { describe, it, expect } from "vitest";
-import { buildSystemPrompt, buildFullSuiteGuidance, ALL_PLATFORMS } from "./contentEngine";
+import {
+  buildSystemPrompt,
+  buildFullSuiteGuidance,
+  ALL_PLATFORMS,
+  CLARIFY_TURN_SYSTEM_PROMPT,
+  MAX_CLARIFYING_QUESTIONS,
+} from "./contentEngine";
 
 describe("buildSystemPrompt", () => {
   it("includes the no-AI-slop guardrail on every call", () => {
     const prompt = buildSystemPrompt("linkedin_post");
-    expect(prompt).toContain("WRITING QUALITY — NO AI SLOP");
+    expect(prompt).toContain("WRITING QUALITY: NO AI SLOP");
     expect(prompt).toContain("delve, foster, leverage");
+  });
+
+  it("never uses an em dash anywhere in its own text", () => {
+    const prompt = buildSystemPrompt("full_suite");
+    expect(prompt).not.toContain("—");
   });
 
   it("never mentions DDRE or UHNW-only/London-centric positioning", () => {
@@ -38,5 +49,32 @@ describe("buildSystemPrompt", () => {
   it("folds the advisor context block into the prompt", () => {
     const prompt = buildSystemPrompt("linkedin_post", null, "\n\nADVISOR TONE OF VOICE...\nfoo");
     expect(prompt).toContain("ADVISOR TONE OF VOICE");
+  });
+});
+
+describe("CLARIFY_TURN_SYSTEM_PROMPT", () => {
+  it("defaults to writing directly rather than asking", () => {
+    expect(CLARIFY_TURN_SYSTEM_PROMPT).toContain("Default to writing directly");
+    expect(CLARIFY_TURN_SYSTEM_PROMPT).toContain("This should be rare");
+  });
+
+  it("only carves out an exception for genuinely unworkable input, not vague-but-real topics", () => {
+    expect(CLARIFY_TURN_SYSTEM_PROMPT).toContain("bare greeting");
+    expect(CLARIFY_TURN_SYSTEM_PROMPT).toContain("A real, genuine content idea or thought, however brief, is workable");
+  });
+
+  it("never uses an em dash anywhere in its own text", () => {
+    expect(CLARIFY_TURN_SYSTEM_PROMPT).not.toContain("—");
+  });
+});
+
+describe("MAX_CLARIFYING_QUESTIONS", () => {
+  it("caps at exactly one question, so it can never collide with the 3/hour generate rate limit", () => {
+    // Regression guard: with a 3-request/hour rate limit on /api/generate and
+    // every clarify round-trip counted against it, a cap of 3 clarifying
+    // questions meant the request that finally generates content (the 4th
+    // call) was rejected by the rate limiter before ever reaching the
+    // generation logic. Capping at 1 keeps the worst case at 2 calls.
+    expect(MAX_CLARIFYING_QUESTIONS).toBe(1);
   });
 });

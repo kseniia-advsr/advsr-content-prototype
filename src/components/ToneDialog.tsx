@@ -2,6 +2,7 @@ import {
   TONE_SECTIONS,
   type ToneResponses,
   type ToneField,
+  type ChannelRatingField as ChannelRatingFieldSchema,
   type ToneResponseValue,
   type ToneSection,
 } from "../engine/toneProfile";
@@ -9,20 +10,33 @@ import { MultiSelectField } from "./fields/MultiSelectField";
 import { SingleSelectField } from "./fields/SingleSelectField";
 import { TextField } from "./fields/TextField";
 import { LocationField } from "./fields/LocationField";
+import { ChannelRatingField } from "./fields/ChannelRatingField";
 
 /**
- * Curated subset of the full 15-section questionnaire shown to an anonymous
- * Phase 1 visitor. The full schema (toneProfile.ts) stays intact for Phase 2;
- * showing all 15 sections here would slow conversion for a one-shot
- * prototype generation, so this trims to the sections with the highest
- * signal for personalising a single piece of content.
+ * All 16 pages of the tone-of-voice questionnaire, in original source order.
+ * Two deliberate amendments from the source schema stay as designed: the
+ * location field targets global countries/cities instead of UK postcodes
+ * (see countries.ts), and "platforms" is asked by InsightsFunnel's
+ * belief-then-actual-choice flow instead of here (see visibleFieldsForSection
+ * below), so it is skipped in this list of rendered pages, not removed from
+ * the underlying schema.
  */
 const PROTOTYPE_SECTION_IDS = [
   "communication_style",
+  "client_experience",
   "archetype",
+  "negotiation",
   "expertise",
   "visibility",
+  "channels",
+  "positioning",
+  "language",
+  "guardrails",
+  "ai_support",
+  "ideal_client",
   "personal",
+  "trust_profile",
+  "examples",
   "free_context",
 ];
 
@@ -30,6 +44,9 @@ function isAnswered(value: ToneResponseValue | undefined): boolean {
   if (Array.isArray(value)) return value.length > 0;
   if (typeof value === "string") return value.trim().length > 0;
   if (typeof value === "number") return true;
+  if (value && typeof value === "object") {
+    return Object.values(value).some((rating) => typeof rating === "number" && rating > 0);
+  }
   return false;
 }
 
@@ -38,7 +55,10 @@ function visibleFieldsForSection(section: ToneSection, responses: ToneResponses)
   const sharePersonal = responses["share_personal"];
   const optedIntoPersonal = typeof sharePersonal === "string" && sharePersonal.startsWith("Yes");
   return section.fields.filter((field) => {
-    if (field.type === "channels") return false;
+    // Asked instead by InsightsFunnel's platform-belief step (belief ->
+    // insight -> actual choice), which writes into this same responses.platforms
+    // field, rendering it here too would ask the advisor twice.
+    if (field.id === "platforms") return false;
     if ((field.id === "personal_ok" || field.id === "personal_offlimits") && !optedIntoPersonal) {
       return false;
     }
@@ -58,7 +78,7 @@ export function ToneDialog({
   onFinish,
 }: {
   responses: ToneResponses;
-  onChange: (next: ToneResponses) => void;
+  onChange: (updater: (prev: ToneResponses) => ToneResponses) => void;
   sectionIndex: number;
   onSectionIndexChange: (next: number) => void;
   onFinish: () => void;
@@ -68,8 +88,12 @@ export function ToneDialog({
   const isFirst = sectionIndex === 0;
   const isLast = sectionIndex === sections.length - 1;
 
+  // Functional update: React applies queued updater functions in order
+  // against the latest state, so rapid/concurrent field changes in the same
+  // render tick can no longer overwrite each other via a stale `responses`
+  // closure.
   const setValue = (fieldId: string, value: ToneResponses[string]) => {
-    onChange({ ...responses, [fieldId]: value });
+    onChange((prev) => ({ ...prev, [fieldId]: value }));
   };
 
   const sharePersonal = responses["share_personal"];
@@ -90,8 +114,8 @@ export function ToneDialog({
             Set up your tone of voice
           </h2>
           <p className="mt-1.5 text-sm text-advsr-muted">
-            Mostly multiple choice, about 2 to 3 minutes. Every answer shapes
-            the one piece of content you're about to generate.
+            Mostly multiple choice, about 5 to 10 minutes. Every answer becomes permanent context
+            for content created for you.
           </p>
         </div>
 
@@ -114,7 +138,7 @@ export function ToneDialog({
 
         <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5">
           <div className="mb-1 text-xs font-medium uppercase tracking-wider text-advsr-muted">
-            Section {sectionIndex + 1} of {sections.length}
+            Page {sectionIndex + 1} of {sections.length}
           </div>
           <h3 className="mb-5 font-heading text-lg font-semibold text-advsr-text">
             {section.title}
@@ -122,7 +146,20 @@ export function ToneDialog({
 
           <div className="space-y-7">
             {section.fields.map((field) => {
-              if (field.type === "channels") return null;
+              // Asked instead by InsightsFunnel's platform-belief step.
+              if (field.id === "platforms") return null;
+
+              if (field.type === "channels") {
+                const channelField = field as ChannelRatingFieldSchema;
+                return (
+                  <ChannelRatingField
+                    key={channelField.id}
+                    field={channelField}
+                    value={(responses[channelField.id] as Record<string, number>) ?? {}}
+                    onChange={(v) => setValue(channelField.id, v)}
+                  />
+                );
+              }
               const toneField = field as ToneField;
 
               if (
@@ -174,6 +211,23 @@ export function ToneDialog({
                   />
                 );
               }
+              if (toneField.type === "rating10") {
+                return (
+                  <SingleSelectField
+                    key={toneField.id}
+                    field={{
+                      ...toneField,
+                      options: Array.from({ length: 10 }, (_, i) => String(i + 1)),
+                    }}
+                    value={
+                      typeof responses[toneField.id] === "number"
+                        ? String(responses[toneField.id])
+                        : ""
+                    }
+                    onChange={(v) => setValue(toneField.id, Number(v))}
+                  />
+                );
+              }
               return null;
             })}
           </div>
@@ -196,7 +250,7 @@ export function ToneDialog({
               disabled={!sectionComplete}
               className="rounded-lg bg-advsr-orange px-4 py-2 font-heading font-semibold text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              Start creating
+              Save profile
             </button>
           ) : (
             <button

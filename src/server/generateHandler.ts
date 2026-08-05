@@ -1,22 +1,54 @@
 import Anthropic from "@anthropic-ai/sdk";
 import {
   buildSystemPrompt,
-  PREMIUM_MODEL,
+  CONTENT_MODEL,
   PREMIUM_MAX_TOKENS,
+  CLARIFY_TURN_SYSTEM_PROMPT,
+  MAX_CLARIFYING_QUESTIONS,
 } from "../engine/contentEngine";
 import { buildAdvisorContext } from "../engine/advisorContext";
 import { isContentTypeId, DEFAULT_CONTENT_TYPE } from "../engine/contentTypes";
 import { checkRateLimit } from "./rateLimit";
-import type { GenerateRequestBody, HandlerResult } from "../lib/types";
+import type { ClarifyingQa, GenerateRequestBody, HandlerResult } from "../lib/types";
 
 const MAX_TOPIC_LENGTH = 2000;
+const CLARIFY_TURN_MAX_TOKENS = 100;
+
+function extractText(response: Anthropic.Message): string {
+  return response.content
+    .filter((block): block is Anthropic.TextBlock => block.type === "text")
+    .map((block) => block.text)
+    .join("\n");
+}
+
+/**
+ * Parses a single clarify-turn response into one short question, or null
+ * when the model says READY (or the response was empty). Only the first
+ * line is used — defensive against the model adding extra text despite the
+ * "one sentence, nothing else" instruction. Exported for unit testing.
+ */
+export function parseClarifyTurnResponse(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed || trimmed === "READY") return null;
+  const firstLine = trimmed.split("\n")[0]!.replace(/^[-*\d.)\s]+/, "").trim();
+  return firstLine || null;
+}
 
 /**
  * Core logic for the Phase 1 "premium first-generation" endpoint: no auth,
- * one Anthropic call per request, best available model, output ceiling well
- * above the source app's 4,096-token cap. Framework-agnostic so both the
- * Netlify function (production) and the Vite dev middleware (local dev) can
- * call it directly. See build spec section 3, "Premium first-generation flag".
+ * output ceiling well above the source app's 4,096-token cap. Framework-
+ * agnostic so both the Netlify function (production) and the Vite dev
+ * middleware (local dev) can call it directly. See build spec section 3,
+ * "Premium first-generation flag".
+ *
+ * Asks at most MAX_CLARIFYING_QUESTIONS (one) short clarifying question
+ * before generating, and only when the topic as given genuinely cannot be
+ * turned into content (too short, a bare greeting, gibberish) — a real topic
+ * or thought, however brief, goes straight to generation. Each call either
+ * returns that one question, or generates and returns the final content once
+ * the model says it's ready or the single-question cap is already used.
+ * Answering the question never counts as using up the one premium
+ * generation — only a returned `output` does.
  */
 export async function generateHandler(
   rawBody: unknown,
@@ -53,26 +85,70 @@ export async function generateHandler(
   const platforms = Array.isArray(body.platforms)
     ? body.platforms.filter((p): p is string => typeof p === "string")
     : undefined;
+  const clarifyingQa: ClarifyingQa[] = Array.isArray(body.clarifyingQa)
+    ? body.clarifyingQa.filter(
+        (qa): qa is ClarifyingQa =>
+          !!qa &&
+          typeof qa.question === "string" &&
+          typeof qa.answer === "string" &&
+          qa.answer.trim().length > 0
+      )
+    : [];
 
   const advisorContext = buildAdvisorContext(body.toneResponses ?? null);
-  const systemPrompt = buildSystemPrompt(contentType, null, advisorContext, platforms);
-
   const client = new Anthropic({ apiKey });
+
+  if (clarifyingQa.length < MAX_CLARIFYING_QUESTIONS) {
+    try {
+      const exchangeSoFar = clarifyingQa
+        .map((qa) => `Q: ${qa.question}\nA: ${qa.answer}`)
+        .join("\n");
+      const turnResponse = await client.messages.create({
+        model: CONTENT_MODEL,
+        max_tokens: CLARIFY_TURN_MAX_TOKENS,
+        system: CLARIFY_TURN_SYSTEM_PROMPT,
+        messages: [
+          {
+            role: "user",
+            content: [
+              `Topic: ${topic}`,
+              advisorContext ? `Advisor profile:${advisorContext}` : "",
+              exchangeSoFar ? `Answered so far:\n${exchangeSoFar}` : "",
+            ]
+              .filter(Boolean)
+              .join("\n\n"),
+          },
+        ],
+      });
+      const question = parseClarifyTurnResponse(extractText(turnResponse));
+      if (question) {
+        return { statusCode: 200, body: { question } };
+      }
+    } catch (err) {
+      // The clarify step is a nice-to-have; if it fails, fall through to
+      // direct generation rather than blocking the one premium generation.
+      console.error("Clarify turn failed, generating directly", err);
+    }
+  }
+
+  const qaBlock =
+    clarifyingQa.length > 0
+      ? `\n\nThe advisor answered these clarifying questions before this topic:\n${clarifyingQa
+          .map((qa) => `Q: ${qa.question}\nA: ${qa.answer}`)
+          .join("\n")}`
+      : "";
+
+  const systemPrompt = buildSystemPrompt(contentType, null, advisorContext, platforms);
 
   try {
     const response = await client.messages.create({
-      model: PREMIUM_MODEL,
+      model: CONTENT_MODEL,
       max_tokens: PREMIUM_MAX_TOKENS,
       system: systemPrompt,
-      messages: [{ role: "user", content: topic }],
+      messages: [{ role: "user", content: `${topic}${qaBlock}` }],
     });
 
-    const text = response.content
-      .filter((block): block is Anthropic.TextBlock => block.type === "text")
-      .map((block) => block.text)
-      .join("\n");
-
-    return { statusCode: 200, body: { output: text } };
+    return { statusCode: 200, body: { output: extractText(response) } };
   } catch (err) {
     console.error("Anthropic generation failed", err);
     return { statusCode: 502, body: { error: "Content generation failed. Please try again." } };

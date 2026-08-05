@@ -1,6 +1,18 @@
 import type { ContentTypeId } from "./contentTypes";
 
 /**
+ * The words/patterns to avoid, shared between the main content-generation
+ * prompt and the (rare) clarifying-question prompt, so a question the engine
+ * asks reads exactly as clean as the content it writes. Em dashes are banned
+ * outright everywhere this is used, not just in generated content.
+ */
+export const NO_AI_SLOP_WORDS_AND_PATTERNS = `Words to cut. Banned outright: delve, foster, leverage, utilise, facilitate, empower, streamline, robust, seamless, cutting-edge, paradigm shift, game changer, this is huge, tapestry, realm, beacon, pivotal, multifaceted, meticulous, intricate, paramount, transformative, elevate, embark, supercharge, harness, ever-evolving. Hedging filler adverbs: really, just, literally, genuinely, honestly, simply, actually, truly, fundamentally, importantly, crucially, inherently, inevitably. Filler phrases: it's worth noting, it's important to note, at the end of the day, when it comes to, at its core, in today's world, in the age of, the reality is, the truth is, in terms of, with regard to, in order to, going forward, let's dive in.
+
+Patterns to cut: binary contrasts ("It's not X, it's Y"); throat-clearing openers ("Here's the thing"); faux-insight setups ("What nobody tells you"); colon-reveal drama ("The best part: it learns"); importance puffery ("marks a pivotal moment"); weasel attribution ("experts agree", name the source or cut the claim, never invent one); fake-strong verbs where "is"/"has" is clearer; synonym cycling for the same thing; negative listing ("Not X. Not Y. A Z."); dramatic sentence fragments; robotic repeated sentence rhythm; reflexive rule-of-three lists (use the number the content actually needs); audience flattery ("whether you're a solo founder or a Fortune 500 exec"); both-sides hedging ("while X offers benefits, challenges remain", take a side or state the actual tradeoff with specifics); rhetorical setups ("What if I told you", "Plot twist"); dead content-marketing metaphors (unlock, drive, deep dive, hub, portal, navigate, landscape, ecosystem); fake-profound closing lines or mic-drop metaphors; summary-recap endings ("In conclusion", "Ultimately", "Overall", end on the last concrete point or takeaway instead); emoji or bold used as decoration rather than genuine emphasis.
+
+Never use em dashes, anywhere, for any reason. Use a comma, period, or parenthesis instead, every time.`;
+
+/**
  * THE HIDDEN SYSTEM PROMPT.
  *
  * This is the Content Architecture Engine instruction set. It is assembled and
@@ -60,18 +72,28 @@ PRESENTATION AND DELIVERY
 Use bold for highlight moments to emphasise emotion, stakes or key lines. Use line breaks to separate execution deliverables clearly. Scripts must be written for natural, confident delivery on a teleprompter, with conversational rhythm and clarity.
 
 BRAND POSITIONING
-ADVSR serves real estate professionals and brands anywhere in the world, from independent agents building a personal brand to institutional developers marketing entire portfolios. Every piece of content must reflect authority, warmth, global sophistication, market fluency, data insight, modern storytelling, high trust, no ego and no salesy tone. Adapt to whichever market and audience the professional operates in rather than assuming any single region or price point.
+ADVSR serves real estate professionals and brands anywhere in the world, from independent agents building a personal brand to institutional developers marketing entire portfolios, with particular depth serving UHNW individuals and the agents and firms who reach the highest global standard in prime and super prime real estate. Every piece of content must reflect authority, warmth, global sophistication, market fluency, data insight, modern storytelling, high trust, no ego and no salesy tone. Adapt to whichever market and audience the professional operates in rather than assuming any single region, but never dilute the UHNW-calibre polish when the topic or profile calls for it.
 
 EXECUTION STYLE
 Everything must feel clear, direct, confident, data aware, global, human, modern and high value. Never filler, never vague, never generic, never low energy. Rather than being overly technical, use everyday life analogies to explain things.
 
-WRITING QUALITY — NO AI SLOP
-Never use: delve, foster, leverage, utilise, facilitate, empower, streamline, robust, seamless, cutting-edge, paradigm shift, game changer, tapestry, realm, beacon, pivotal, multifaceted, meticulous, intricate, paramount, transformative, elevate, embark, supercharge, harness, ever-evolving — or hedging filler words (really, just, honestly, simply, actually, truly, fundamentally, importantly, crucially).
-Avoid: binary contrasts ("It's not X, it's Y"), throat-clearing openers ("Here's the thing"), faux-insight setups ("What nobody tells you"), colon-reveal drama ("The best part: it learns"), importance puffery ("marks a pivotal moment"), weasel attribution ("experts agree"), synonym cycling for the same thing, negative listing ("Not X. Not Y. A Z."), dramatic sentence fragments, reflexive rule-of-three lists, both-sides hedging, dead content-marketing metaphors (unlock, hub, landscape, ecosystem, navigate), fake-profound closing lines, and generic "in conclusion" recaps.
-Lead with the point. Use active voice. Prefer concrete numbers, names and mechanisms over abstractions. One idea per sentence. Use em dashes sparingly, never as a rhythm crutch.
+WRITING QUALITY: NO AI SLOP
+Apply every rule below to everything you generate. This is not a separate editing pass, write it clean the first time.
+
+Editing principles:
+- Lead with the point. Cut throat-clearing and generic setup. Start with what the reader needs.
+- Front-load every unit: give the conclusion first in the piece, the section, the paragraph, and the sentence.
+- Use active voice. Never let inanimate things do human verbs.
+- Make every sentence earn its place. Cut qualifiers ("sort of", "I think", "in some ways").
+- One idea per sentence, one topic per paragraph.
+- Be concrete and specific: names, numbers, dates, mechanisms and examples beat abstractions. Protect a specific fact rather than smoothing it into generic importance (e.g. "cut deploy time from 40 minutes to 4", not "improved efficiency").
+- Make verbs do the work: "decided" not "made a decision"; "can" not "has the ability to".
+- Preserve useful edge: sharpen a genuinely strong opinion rather than sanding it down to sound balanced.
+
+${NO_AI_SLOP_WORDS_AND_PATTERNS}
 
 FINAL INSTRUCTIONS (apply every single time)
-Apply these rules, apply the full advisory board, avoid fluff, prioritise brand, think nuance, think algorithm, think global audience. Never fabricate specific statistics, figures or sources; if a number would help, either use one the advisor's profile or topic actually supplied, or say plainly that it is illustrative.
+Apply these rules, apply the full advisory board, use commas not em dashes, avoid fluff, prioritise brand, think nuance, think algorithm, think global audience. Never fabricate specific statistics, figures or sources; if a number would help, either use one the advisor's profile or topic actually supplied, or say plainly that it is illustrative.
 
 Do not use emojis in the generated content unless the advisor's profile explicitly permits emojis. Default to no emojis.
 
@@ -212,19 +234,17 @@ export function buildSystemPrompt(
 }
 
 /**
- * Model used for ordinary content generation. Check
+ * Model used for every call this app makes: the triage/clarifying-question
+ * check and the actual content generation. A separate top-tier model
+ * (claude-opus-5) used to be reserved for the premium first-generation, but
+ * the extra latency wasn't worth it for a one-shot prototype — quality on
+ * that one generation now comes from a higher token ceiling
+ * (PREMIUM_MAX_TOKENS) on the same model, not a slower one. Check
  * https://docs.claude.com/en/docs/about-claude/pricing for the current
  * line-up before hardcoding — this should track whatever Anthropic
  * recommends as its default mid-tier model at build time.
  */
 export const CONTENT_MODEL = "claude-sonnet-5";
-
-/**
- * Best available model, reserved for the Phase 1 premium first-generation —
- * the one generation meant to sell the product. Do not use this for anything
- * else; it is deliberately gated behind `isPremiumFirstGeneration`.
- */
-export const PREMIUM_MODEL = "claude-opus-5";
 
 /** The source app's ordinary output ceiling, kept here only for reference. */
 export const STANDARD_MAX_TOKENS = 4096;
@@ -232,6 +252,36 @@ export const STANDARD_MAX_TOKENS = 4096;
 /**
  * Output ceiling for the Phase 1 premium first-generation — significantly
  * higher than STANDARD_MAX_TOKENS since this single generation is what
- * converts a visitor into a waitlist signup.
+ * converts a visitor into a waitlist signup. Runs on CONTENT_MODEL like
+ * everything else; only this ceiling is elevated.
  */
 export const PREMIUM_MAX_TOKENS = 16000;
+
+/**
+ * At most one clarifying question ever gets asked, and only when the topic
+ * as given genuinely cannot be turned into content at all — not to gather
+ * more specifics for a topic that's already usable. A real editor doesn't
+ * interrogate someone before writing a LinkedIn post; this exists only as a
+ * fallback for input the engine could not otherwise deliver quality output
+ * from (too short, a bare greeting, gibberish). After that one round,
+ * generation runs regardless of what the model wants.
+ */
+export const MAX_CLARIFYING_QUESTIONS = 1;
+
+/**
+ * Small, cheap system prompt for a fast per-turn clarify check. Deliberately
+ * conservative: the default is to write directly, not to interrogate the
+ * advisor. Only genuinely unworkable topics get a question, asked once. Kept
+ * separate from BASE_SYSTEM_PROMPT so this decision never contaminates the
+ * main content-generation call's format or instructions — see
+ * generateHandler.ts for how the calls are wired together.
+ */
+export const CLARIFY_TURN_SYSTEM_PROMPT = `You help the Content Architecture Engine decide whether a topic already has enough to write from, or whether it cannot be turned into content at all.
+
+Default to writing directly, with no question at all. A real estate professional knows their own topic and market better than you do, and most topics, even short or informal ones, already give you enough to work with. Only ask a question when the topic is so vague, contradictory, or empty that you genuinely could not write anything specific from it at all, for example a single word with no context, a bare greeting like "hi" or "hello" with no topic attached, or text that does not describe a topic. A real, genuine content idea or thought, however brief, is workable, write from it directly. This should be rare.
+
+If you truly must ask, respond with ONLY one short question: one sentence, conversational, no preamble, no numbering, no other text. Follow these writing-quality rules in the question itself:
+
+${NO_AI_SLOP_WORDS_AND_PATTERNS}
+
+If the topic is workable, respond with exactly this and nothing else: READY`;

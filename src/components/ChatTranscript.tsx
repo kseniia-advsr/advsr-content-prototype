@@ -1,9 +1,75 @@
 import { parseOutputSections, formatOutputHtml } from "../lib/parseOutput";
 import { CopyButton } from "./CopyButton";
 
-export type ChatMessage = { role: "user" | "assistant"; content: string };
+export type ChatMessage =
+  | { role: "user"; content: string }
+  | { role: "assistant"; kind: "content"; content: string }
+  | { role: "assistant"; kind: "question"; content: string };
 
-function AssistantMessage({ content }: { content: string }) {
+function AssistantQuestion({ content }: { content: string }) {
+  return (
+    <div className="flex items-start gap-3">
+      <div className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-advsr-orange/15 text-advsr-orange">
+        ✨
+      </div>
+      <div className="max-w-[80%] rounded-2xl border border-advsr-border bg-advsr-surface px-4 py-2.5 text-sm text-advsr-text">
+        {content}
+      </div>
+    </div>
+  );
+}
+
+function FeedbackButtons({
+  feedback,
+  onFeedback,
+}: {
+  feedback: "GOOD" | "BAD" | null;
+  onFeedback: (value: "GOOD" | "BAD") => void;
+}) {
+  return (
+    <div className="flex items-center gap-2 pt-1">
+      <span className="text-xs text-advsr-muted">Was this useful?</span>
+      <button
+        type="button"
+        onClick={() => onFeedback("GOOD")}
+        aria-label="Good response"
+        aria-pressed={feedback === "GOOD"}
+        className={
+          "rounded-md border px-2 py-1 text-sm transition-colors " +
+          (feedback === "GOOD"
+            ? "border-advsr-orange bg-advsr-orange/15 text-advsr-orange"
+            : "border-advsr-border text-advsr-muted hover:border-advsr-orange-2 hover:text-advsr-text")
+        }
+      >
+        👍
+      </button>
+      <button
+        type="button"
+        onClick={() => onFeedback("BAD")}
+        aria-label="Bad response"
+        aria-pressed={feedback === "BAD"}
+        className={
+          "rounded-md border px-2 py-1 text-sm transition-colors " +
+          (feedback === "BAD"
+            ? "border-advsr-orange bg-advsr-orange/15 text-advsr-orange"
+            : "border-advsr-border text-advsr-muted hover:border-advsr-orange-2 hover:text-advsr-text")
+        }
+      >
+        👎
+      </button>
+    </div>
+  );
+}
+
+function AssistantMessage({
+  content,
+  feedback,
+  onFeedback,
+}: {
+  content: string;
+  feedback: "GOOD" | "BAD" | null;
+  onFeedback: (value: "GOOD" | "BAD") => void;
+}) {
   const sections = parseOutputSections(content);
   return (
     <div className="flex items-start gap-3">
@@ -26,6 +92,7 @@ function AssistantMessage({ content }: { content: string }) {
             />
           </article>
         ))}
+        <FeedbackButtons feedback={feedback} onFeedback={onFeedback} />
       </div>
     </div>
   );
@@ -34,32 +101,33 @@ function AssistantMessage({ content }: { content: string }) {
 export function ChatTranscript({
   messages,
   isLoading,
+  contentFeedback,
+  onFeedback,
 }: {
   messages: ChatMessage[];
   isLoading: boolean;
+  contentFeedback: "GOOD" | "BAD" | null;
+  onFeedback: (value: "GOOD" | "BAD") => void;
 }) {
-  const hasMessages = messages.length > 0;
-
   return (
     <div className="mx-auto w-full max-w-3xl space-y-5 px-6 py-6">
-      {!hasMessages && !isLoading && (
-        <div className="flex flex-col items-center gap-3 py-16 text-center text-advsr-muted">
-          <span className="text-3xl opacity-40">✨</span>
-          <p className="text-sm">Tell me what you want to talk about ✨</p>
-        </div>
-      )}
-
-      {messages.map((m, i) =>
-        m.role === "user" ? (
-          <div key={i} className="flex justify-end">
-            <div className="max-w-[80%] rounded-2xl bg-advsr-orange px-4 py-2.5 text-sm text-black">
-              <p className="whitespace-pre-wrap">{m.content}</p>
+      {messages.map((m, i) => {
+        if (m.role === "user") {
+          return (
+            <div key={i} className="flex justify-end">
+              <div className="max-w-[80%] rounded-2xl bg-advsr-orange px-4 py-2.5 text-sm text-black">
+                <p className="whitespace-pre-wrap">{m.content}</p>
+              </div>
             </div>
-          </div>
-        ) : (
-          <AssistantMessage key={i} content={m.content} />
-        )
-      )}
+          );
+        }
+        if (m.kind === "question") {
+          return <AssistantQuestion key={i} content={m.content} />;
+        }
+        return (
+          <AssistantMessage key={i} content={m.content} feedback={contentFeedback} onFeedback={onFeedback} />
+        );
+      })}
 
       {isLoading && (
         <div className="flex items-start gap-3">

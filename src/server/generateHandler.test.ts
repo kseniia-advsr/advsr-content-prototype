@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { generateHandler } from "./generateHandler";
+import { generateHandler, parseClarifyTurnResponse } from "./generateHandler";
 import { _resetRateLimitForTests } from "./rateLimit";
 
 describe("generateHandler", () => {
@@ -38,5 +38,27 @@ describe("generateHandler", () => {
     await generateHandler({ topic: "a" }, ip);
     const fourth = await generateHandler({ topic: "a" }, ip);
     expect(fourth.statusCode).toBe(429);
+  });
+});
+
+describe("parseClarifyTurnResponse", () => {
+  it("returns null for READY", () => {
+    expect(parseClarifyTurnResponse("READY")).toBeNull();
+  });
+
+  it("returns null for an empty or whitespace-only response", () => {
+    expect(parseClarifyTurnResponse("   \n  ")).toBeNull();
+  });
+
+  it("returns a single question, stripping numbering and bullet markers", () => {
+    expect(parseClarifyTurnResponse("1. What's the one outcome you want this to highlight?")).toBe(
+      "What's the one outcome you want this to highlight?"
+    );
+    expect(parseClarifyTurnResponse("- What's the angle here?")).toBe("What's the angle here?");
+  });
+
+  it("only uses the first line even if the model adds extra text", () => {
+    const raw = "What's the headline data point?\nSome extra explanation that should be dropped.";
+    expect(parseClarifyTurnResponse(raw)).toBe("What's the headline data point?");
   });
 });

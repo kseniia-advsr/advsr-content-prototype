@@ -357,6 +357,12 @@ export const TONE_SECTIONS: ToneSection[] = [
     id: "language",
     title: "Language preferences",
     fields: [
+      {
+        id: "english_variant",
+        label: "American or British English for your content?",
+        type: "single",
+        options: ["American English", "British English", "Don't mind"],
+      },
       { id: "term_advisor", label: "Advisor / Adviser", type: "single", options: ["Advisor", "Adviser"] },
       { id: "term_property", label: "How to refer to a property", type: "single", options: ["Property", "Home", "Residence", "Asset"] },
       { id: "term_client", label: "Client / Customer", type: "single", options: ["Client", "Customer"] },
@@ -468,11 +474,11 @@ export const TONE_SECTIONS: ToneSection[] = [
     id: "trust_profile",
     title: "Trust profile",
     fields: [
-      { id: "trust", label: "Trust — I consistently do what I say.", type: "rating10" },
-      { id: "likeability", label: "Likeability — People enjoy interacting with me.", type: "rating10" },
-      { id: "respect", label: "Respect — People see me as an expert.", type: "rating10" },
-      { id: "discretion", label: "Discretion — People trust me with sensitive information.", type: "rating10" },
-      { id: "reliability", label: "Reliability — People know I will follow through.", type: "rating10" },
+      { id: "trust", label: "Trust: I consistently do what I say.", type: "rating10" },
+      { id: "likeability", label: "Likeability: People enjoy interacting with me.", type: "rating10" },
+      { id: "respect", label: "Respect: People see me as an expert.", type: "rating10" },
+      { id: "discretion", label: "Discretion: People trust me with sensitive information.", type: "rating10" },
+      { id: "reliability", label: "Reliability: People know I will follow through.", type: "rating10" },
     ],
   },
   {

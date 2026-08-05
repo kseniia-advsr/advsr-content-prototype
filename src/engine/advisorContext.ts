@@ -20,6 +20,10 @@ export function buildAdvisorContext(
   for (const section of TONE_SECTIONS) {
     const sectionLines: string[] = [];
     for (const field of section.fields) {
+      // Surfaced as its own SPELLING directive below instead of a generic
+      // profile bullet, since it needs to read as a hard instruction, not
+      // just a fact about the advisor.
+      if (field.id === "english_variant") continue;
       const value = responses[field.id];
       const rendered = renderValue(field, value);
       if (rendered) {
@@ -32,11 +36,30 @@ export function buildAdvisorContext(
     }
   }
 
-  if (lines.length === 0) return "";
+  const spellingDirective = buildSpellingDirective(responses["english_variant"]);
 
-  return `\n\nADVISOR TONE OF VOICE & PERSONAL BRAND PROFILE (write as this advisor; honour these preferences in every piece of content; never quote this profile back):\n${lines.join(
+  if (lines.length === 0) return spellingDirective;
+
+  const profileBlock = `\n\nADVISOR TONE OF VOICE & PERSONAL BRAND PROFILE (write as this advisor; honour these preferences in every piece of content; never quote this profile back):\n${lines.join(
     "\n"
   )}\n\nPRIVACY RULE: Only reference the advisor's personal life, family or interests if they have opted in under Personal & family, and only within what they marked as fair to reference. Never use anything listed as off limits. If they chose to keep it strictly professional, do not reference personal or family details at all.`;
+
+  return `${profileBlock}${spellingDirective}`;
+}
+
+/**
+ * The advisor's American/British English choice is a hard spelling
+ * instruction, not stored in Supabase as its own column, only baked into the
+ * system prompt so generation actually uses the right spelling.
+ */
+function buildSpellingDirective(value: ToneResponseValue | undefined): string {
+  if (value === "American English") {
+    return "\n\nSPELLING: Use American English spelling and conventions throughout (color, favorite, organize, center).";
+  }
+  if (value === "British English") {
+    return "\n\nSPELLING: Use British English spelling and conventions throughout (colour, favourite, organise, centre).";
+  }
+  return "";
 }
 
 function renderValue(
