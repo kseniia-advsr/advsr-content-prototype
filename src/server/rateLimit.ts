@@ -7,10 +7,11 @@
  */
 const WINDOW_MS = 60 * 60 * 1000;
 // One visitor working through every platform (LinkedIn, Instagram, Facebook,
-// TikTok, YouTube Shorts, X) now fires a separate /api/generate call per platform
-// pick rather than one combined call, so the cap needs enough headroom for a
-// full run plus a couple of retries, not just a single generation.
-const MAX_PER_WINDOW = 8;
+// YouTube / TikTok, X) fires a separate /api/generate call per platform pick
+// rather than one combined call, and the retry-on-error button adds another
+// call per timeout instead of silently reusing the failed one — so the cap
+// needs headroom for a full run plus several retries, not just one generation.
+const MAX_PER_WINDOW = 15;
 
 const buckets = new Map<string, { count: number; resetAt: number }>();
 

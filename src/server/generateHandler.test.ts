@@ -33,11 +33,11 @@ describe("generateHandler", () => {
 
   it("rate-limits repeated requests from the same IP", async () => {
     const ip = "10.0.0.4";
-    for (let i = 0; i < 8; i++) {
+    for (let i = 0; i < 15; i++) {
       await generateHandler({ topic: "a" }, ip);
     }
-    const ninth = await generateHandler({ topic: "a" }, ip);
-    expect(ninth.statusCode).toBe(429);
+    const nextOne = await generateHandler({ topic: "a" }, ip);
+    expect(nextOne.statusCode).toBe(429);
   });
 });
 
