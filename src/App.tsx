@@ -305,7 +305,12 @@ export default function App() {
           ) : (
             <ChatTranscript
               messages={messages}
-              isLoading={isLoading}
+              // While picking mode is up, the loading state now shows on the
+              // platform pill itself (right where the visitor just clicked)
+              // instead of duplicating here — this transcript spinner is for
+              // the first-ever generation and clarifying answers, where no
+              // picker exists yet to carry it.
+              isLoading={isLoading && composerMode !== "picking"}
               contentFeedback={contentFeedback}
               onFeedback={handleFeedback}
             />
@@ -315,9 +320,11 @@ export default function App() {
         {/* Persistent bottom slot: composer before the first topic and
             through the clarifying-question exchange, then a platform picker
             once at least one platform has generated, then a Get Full Access
-            button once every platform has. Also locked during funnelPending
-            so a visitor who was already typing can't keep going behind the
-            insights funnel once it's up. */}
+            button once every platform has. Locked once the insights funnel
+            modal is actually open (it covers the screen anyway) but stays
+            usable during the 7s funnelPending wait that precedes it — that
+            wait no longer needs to lock the composer now that funnelOpen is
+            the thing guarding against overlap. */}
         <ChatComposer
           mode={composerMode}
           onSubmit={handleComposerSubmit}
@@ -325,7 +332,8 @@ export default function App() {
           onPickPlatform={handlePickPlatform}
           remainingPlatforms={PLATFORM_CONTENT_TYPES.filter((p) => remainingPlatformIds.includes(p.id))}
           onGetFullAccess={() => patch({ waitlistOpen: true, waitlistDismissable: false })}
-          disabled={isLoading || funnelPending}
+          disabled={isLoading || funnelOpen}
+          generatingContentTypeId={isLoading ? pendingContentType : null}
         />
       </div>
 

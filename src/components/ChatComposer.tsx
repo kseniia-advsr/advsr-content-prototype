@@ -52,6 +52,7 @@ export function ChatComposer({
   remainingPlatforms,
   onGetFullAccess,
   disabled,
+  generatingContentTypeId,
 }: {
   mode: ComposerMode;
   onSubmit: (text: string, contentType: ContentTypeId) => void;
@@ -63,6 +64,8 @@ export function ChatComposer({
   remainingPlatforms: ContentTypeOption[];
   onGetFullAccess: () => void;
   disabled: boolean;
+  /** The platform currently generating, so "picking" mode can show the loading state on the pill the visitor just clicked rather than leaving that clear only in the transcript above. Null outside of an in-flight platform pick. */
+  generatingContentTypeId?: ContentTypeId | null;
 }) {
   const [input, setInput] = useState("");
   const [contentType, setContentType] = useState<ContentTypeId>(DEFAULT_CONTENT_TYPE);
@@ -90,22 +93,43 @@ export function ChatComposer({
   const placeholder = disabled ? "Thinking…" : mode === "topic" ? STARTER_PROMPTS[placeholderIndex] : "Your answer…";
 
   if (mode === "picking") {
+    const generatingOption = remainingPlatforms.find((p) => p.id === generatingContentTypeId);
     return (
       <div className="bg-advsr-bg px-6 py-4">
         <div className="mx-auto w-full max-w-3xl rounded-2xl border border-advsr-border bg-advsr-surface p-4 shadow-lg">
-          <p className="mb-3 text-sm font-medium text-advsr-text">What platform are you posting on next?</p>
+          <p className="mb-3 flex items-center gap-2 text-sm font-medium text-advsr-text">
+            {generatingOption ? (
+              <>
+                <span className="size-3.5 shrink-0 animate-spin rounded-full border-2 border-advsr-border border-t-advsr-orange" />
+                Generating your {generatingOption.label} post…
+              </>
+            ) : (
+              "What platform are you posting on next?"
+            )}
+          </p>
           <div className="flex flex-wrap gap-2">
-            {remainingPlatforms.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                onClick={() => onPickPlatform(option.id)}
-                disabled={disabled}
-                className="rounded-full border border-advsr-border px-3 py-1.5 text-sm text-advsr-muted transition-colors hover:border-advsr-orange-2 hover:text-advsr-text disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {option.label}
-              </button>
-            ))}
+            {remainingPlatforms.map((option) => {
+              const isGenerating = option.id === generatingContentTypeId;
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => onPickPlatform(option.id)}
+                  disabled={disabled}
+                  className={
+                    "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors disabled:cursor-not-allowed " +
+                    (isGenerating
+                      ? "border-advsr-orange bg-advsr-orange/10 text-advsr-orange"
+                      : "border-advsr-border text-advsr-muted hover:border-advsr-orange-2 hover:text-advsr-text disabled:opacity-50")
+                  }
+                >
+                  {isGenerating && (
+                    <span className="size-3 shrink-0 animate-spin rounded-full border-2 border-advsr-orange/30 border-t-advsr-orange" />
+                  )}
+                  {option.label}
+                </button>
+              );
+            })}
             <FullSuiteButton onClick={onFullSuiteRequested} disabled={disabled} />
           </div>
         </div>
