@@ -250,12 +250,18 @@ export const CONTENT_MODEL = "claude-sonnet-5";
 export const STANDARD_MAX_TOKENS = 4096;
 
 /**
- * Output ceiling for the Phase 1 premium first-generation — significantly
- * higher than STANDARD_MAX_TOKENS since this single generation is what
- * converts a visitor into a waitlist signup. Runs on CONTENT_MODEL like
+ * Output ceiling for the Phase 1 premium first-generation — higher than
+ * STANDARD_MAX_TOKENS since this single generation is what converts a
+ * visitor into a waitlist signup, but deliberately capped well below the
+ * API's own maximum. This whole full-suite generation runs as one
+ * synchronous Netlify Function call with a 10-26s execution limit; a higher
+ * ceiling (this was 16,000) risks the function timing out on an unusually
+ * long generation before Anthropic finishes responding. 7,000 tokens is
+ * still generous for a full suite across every platform (typical output is
+ * well under this), while capping the worst case. Runs on CONTENT_MODEL like
  * everything else; only this ceiling is elevated.
  */
-export const PREMIUM_MAX_TOKENS = 16000;
+export const PREMIUM_MAX_TOKENS = 7000;
 
 /**
  * At most one clarifying question ever gets asked, and only when the topic
