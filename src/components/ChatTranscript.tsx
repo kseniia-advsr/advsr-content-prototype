@@ -3,7 +3,7 @@ import { CopyButton } from "./CopyButton";
 
 export type ChatMessage =
   | { role: "user"; content: string }
-  | { role: "assistant"; kind: "content"; content: string }
+  | { role: "assistant"; kind: "content"; content: string; platformLabel?: string }
   | { role: "assistant"; kind: "question"; content: string };
 
 function AssistantQuestion({ content }: { content: string }) {
@@ -63,10 +63,12 @@ function FeedbackButtons({
 
 function AssistantMessage({
   content,
+  platformLabel,
   feedback,
   onFeedback,
 }: {
   content: string;
+  platformLabel?: string;
   feedback: "GOOD" | "BAD" | null;
   onFeedback: (value: "GOOD" | "BAD") => void;
 }) {
@@ -83,7 +85,9 @@ function AssistantMessage({
             className="overflow-hidden rounded-xl border border-advsr-border bg-advsr-surface"
           >
             <div className="flex items-center justify-between gap-2 border-b border-advsr-border px-3 py-2">
-              <span className="text-xs font-semibold text-advsr-orange">{section.heading}</span>
+              <span className="text-xs font-semibold text-advsr-orange">
+                {section.heading === "Output" && platformLabel ? platformLabel : section.heading}
+              </span>
               <CopyButton text={section.body} />
             </div>
             <div
@@ -115,7 +119,7 @@ export function ChatTranscript({
         if (m.role === "user") {
           return (
             <div key={i} className="flex justify-end">
-              <div className="max-w-[80%] rounded-2xl bg-advsr-orange px-4 py-2.5 text-sm text-black">
+              <div className="max-w-[80%] rounded-2xl bg-advsr-text px-4 py-2.5 text-sm text-black">
                 <p className="whitespace-pre-wrap">{m.content}</p>
               </div>
             </div>
@@ -125,7 +129,13 @@ export function ChatTranscript({
           return <AssistantQuestion key={i} content={m.content} />;
         }
         return (
-          <AssistantMessage key={i} content={m.content} feedback={contentFeedback} onFeedback={onFeedback} />
+          <AssistantMessage
+            key={i}
+            content={m.content}
+            platformLabel={m.platformLabel}
+            feedback={contentFeedback}
+            onFeedback={onFeedback}
+          />
         );
       })}
 

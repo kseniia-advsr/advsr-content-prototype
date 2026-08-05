@@ -154,18 +154,24 @@ const CONTENT_TYPE_GUIDANCE: Record<ContentTypeId, string> = {
 Produce one polished LinkedIn post. Lead with a strong hook in the first two lines (visible before the fold), use short punchy paragraphs and line breaks for readability, build with the Tension Bridge, close the loop, and end with one clear takeaway and a soft, non salesy call to engage. Add 3 to 5 relevant hashtags at the end. Keep it authority led and human.`,
   instagram_caption: `DELIVERABLE MODE: INSTAGRAM CAPTION.
 Produce one Instagram caption. Open with a scroll stopping first line, keep it tight and rhythmic, use the Tension Bridge in compressed form, add light line breaks, finish with a takeaway and a gentle prompt to save or share. Add a block of 8 to 12 relevant hashtags at the end.`,
-  email_newsletter: `DELIVERABLE MODE: EMAIL NEWSLETTER.
-Produce one email newsletter. Provide a subject line, a preview line, and the body. Warm, value rich and personal in tone, structured with the Tension Bridge, scannable with short paragraphs and the occasional bold line for emphasis, closing with one actionable takeaway and a clear next step.`,
-  market_commentary: `DELIVERABLE MODE: MARKET COMMENTARY.
-Produce a piece of market commentary. Be data aware and measured, always find the positive angle, ground claims in fundamentals and everyday analogies, use the Tension Bridge to keep it engaging, and close with a confident, forward looking takeaway. Note clearly when a figure is illustrative rather than a verified statistic, and never fabricate specific numbers.`,
+  facebook_post: `DELIVERABLE MODE: FACEBOOK POST.
+Produce one Facebook post, warm and community minded. Use the Tension Bridge to keep it engaging, keep paragraphs short and conversational, and close with a takeaway that invites comments or shares rather than a hard sell.`,
+  tiktok_script: `DELIVERABLE MODE: TIKTOK SCRIPT.
+Produce one short, punchy TikTok script. Open with a hook in the first three seconds that earns the rest of the watch, write for natural spoken delivery, and include on screen text cues in brackets at the key beats. Close on the payoff, not a summary.`,
+  youtube_script: `DELIVERABLE MODE: YOUTUBE SCRIPT.
+Produce, in this order: a short video narrative outline using the Tension Bridge, then a full Teleprompter script written for natural spoken delivery, then 3 to 5 Title variations, then Thumbnail text suggestions, then a B roll shot list.`,
+  x_thread: `DELIVERABLE MODE: X THREAD.
+Produce one tweet thread, numbered, each tweet on its own line, opening with a hook tweet that earns the reply click, building with the Tension Bridge across the thread, and closing on the payoff.`,
 };
 
 const CONTENT_TYPE_LINE: Record<ContentTypeId, string> = {
   full_suite: "the full suite of deliverables across every platform",
   linkedin_post: "a LinkedIn post",
   instagram_caption: "an Instagram caption",
-  email_newsletter: "an email newsletter",
-  market_commentary: "market commentary",
+  facebook_post: "a Facebook post",
+  tiktok_script: "a TikTok script",
+  youtube_script: "a YouTube script",
+  x_thread: "an X thread",
 };
 
 /**

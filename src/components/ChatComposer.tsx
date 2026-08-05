@@ -1,33 +1,51 @@
 import { useEffect, useState } from "react";
-import { CONTENT_TYPES, STARTER_PROMPTS, DEFAULT_CONTENT_TYPE, type ContentTypeId } from "../engine/contentTypes";
+import {
+  CONTENT_TYPES,
+  STARTER_PROMPTS,
+  DEFAULT_CONTENT_TYPE,
+  type ContentTypeId,
+  type ContentTypeOption,
+} from "../engine/contentTypes";
 
 const PLACEHOLDER_ROTATION_MS = 7000;
 
 /**
- * "topic": the very first submission — content-type selector shown, rotating
- *   starter-prompt placeholders.
+ * "topic": the very first submission — content-type selector shown (every
+ *   full-suite platform individually, plus Full Suite itself), rotating
+ *   starter-prompt placeholders. Selecting Full Suite and sending routes to
+ *   the waitlist instead of generating (see onFullSuiteRequested).
  * "answer": replying to a clarifying question — no content-type selector,
  *   short single-line placeholder.
- * "done": the one premium generation has landed — the composer itself is
- *   gone (the "one premium generation" business rule means no further free
- *   generations), replaced by a Get Full Access button in the same slot.
+ * "picking": at least one platform has generated and platforms remain — the
+ *   composer is replaced by a picker for the next platform, plus Full Suite.
+ * "done": every platform has been used — replaced by a Get Full Access
+ *   button in the same slot.
  */
-export type ComposerMode = "topic" | "answer" | "done";
+export type ComposerMode = "topic" | "answer" | "picking" | "done";
 
 /**
  * Persistent bottom slot: the composer before the first topic and through
- * the clarifying-question exchange, then a Get Full Access button once
- * content has generated — always present in that position rather than
- * disappearing or going inert after one use.
+ * the clarifying-question exchange, then a platform picker once at least one
+ * platform has generated, then a Get Full Access button once they all have —
+ * always present in that position rather than disappearing after one use.
  */
 export function ChatComposer({
   mode,
   onSubmit,
+  onFullSuiteRequested,
+  onPickPlatform,
+  remainingPlatforms,
   onGetFullAccess,
   disabled,
 }: {
   mode: ComposerMode;
   onSubmit: (text: string, contentType: ContentTypeId) => void;
+  /** Full Suite was selected (from the dropdown) or clicked (from the picker) — never generates, always routes to the (dismissable) waitlist instead. */
+  onFullSuiteRequested: () => void;
+  /** A platform pill was clicked in "picking" mode — re-sends the original topic for that platform. */
+  onPickPlatform: (contentType: ContentTypeId) => void;
+  /** Platforms not yet used, shown in "picking" mode. */
+  remainingPlatforms: ContentTypeOption[];
   onGetFullAccess: () => void;
   disabled: boolean;
 }) {
@@ -46,6 +64,10 @@ export function ChatComposer({
   const start = (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || disabled) return;
+    if (contentType === "full_suite") {
+      onFullSuiteRequested();
+      return;
+    }
     onSubmit(trimmed, contentType);
     setInput("");
   };
@@ -55,6 +77,39 @@ export function ChatComposer({
   // read as "topic" and flash the starter-prompt placeholder — show a
   // neutral loading placeholder instead regardless of mode.
   const placeholder = disabled ? "Thinking…" : mode === "topic" ? STARTER_PROMPTS[placeholderIndex] : "Your answer…";
+
+  if (mode === "picking") {
+    return (
+      <div className="bg-advsr-bg px-6 py-4">
+        <div className="mx-auto w-full max-w-3xl rounded-2xl border border-advsr-border bg-advsr-surface p-4 shadow-lg">
+          <p className="mb-3 text-sm font-medium text-advsr-text">
+            Want the same idea for another platform?
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {remainingPlatforms.map((option) => (
+              <button
+                key={option.id}
+                type="button"
+                onClick={() => onPickPlatform(option.id)}
+                disabled={disabled}
+                className="rounded-full border border-advsr-border px-3 py-1.5 text-sm text-advsr-muted transition-colors hover:border-advsr-orange-2 hover:text-advsr-text disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {option.label}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={onFullSuiteRequested}
+              disabled={disabled}
+              className="rounded-full bg-advsr-orange px-3 py-1.5 text-sm font-semibold text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              ✨ Full Suite
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (mode === "done") {
     return (

@@ -238,25 +238,22 @@ export function ToneDialog({
 
         <div className="grid grid-cols-3 items-center gap-3 border-t border-advsr-border px-6 py-4">
           <div className="justify-self-start">
-            <button
-              type="button"
-              onClick={() => onSectionIndexChange(Math.max(0, sectionIndex - 1))}
-              disabled={isFirst}
-              className="rounded-lg px-3 py-2 text-sm text-advsr-muted transition-colors hover:text-advsr-text disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              ‹ Back
-            </button>
+            {!isFirst && (
+              <button
+                type="button"
+                onClick={() => onSectionIndexChange(Math.max(0, sectionIndex - 1))}
+                className="rounded-lg px-3 py-2 text-sm text-advsr-muted transition-colors hover:text-advsr-text"
+              >
+                ‹ Back
+              </button>
+            )}
           </div>
 
           <div className="justify-self-center text-center">
             {isFirst && (
               <p className="text-xs text-advsr-muted">
                 By continuing, you agree to ADVSR's{" "}
-                <button
-                  type="button"
-                  onClick={() => setPrivacyOpen(true)}
-                  className="text-advsr-orange hover:underline"
-                >
+                <button type="button" onClick={() => setPrivacyOpen(true)} className="underline">
                   Privacy Notice
                 </button>{" "}
                 for this tool.

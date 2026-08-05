@@ -7,7 +7,7 @@ import { ChatComposer, type ComposerMode } from "./components/ChatComposer";
 import { ChatTranscript, type ChatMessage } from "./components/ChatTranscript";
 import { WaitlistDialog, type WaitlistSubmission } from "./components/WaitlistDialog";
 import type { ToneResponses } from "./engine/toneProfile";
-import type { ContentTypeId } from "./engine/contentTypes";
+import { PLATFORM_CONTENT_TYPES, type ContentTypeId } from "./engine/contentTypes";
 import type {
   CaptureFields,
   ClarifyingQa,
@@ -31,14 +31,21 @@ const initialState = () => ({
   isLoading: false,
   generateError: null as string | null,
   waitlistOpen: false,
+  // True only when the waitlist was opened via the "Full Suite" teaser
+  // (dropdown or picker) rather than earned by finishing the demo — that's
+  // the one instance the visitor can dismiss without submitting.
+  waitlistDismissable: false,
   waitlistSubmitted: false,
   clarifyingQa: [] as ClarifyingQa[],
   contentFeedback: null as "GOOD" | "BAD" | null,
   // The topic + content type the advisor originally submitted, held onto so
-  // each clarifying-answer round-trip can re-send the same request with the
-  // growing Q&A history folded in.
+  // each clarifying-answer round-trip, and each subsequent platform pick,
+  // can re-send the same topic.
   pendingTopic: "",
-  pendingContentType: "full_suite" as ContentTypeId,
+  pendingContentType: PLATFORM_CONTENT_TYPES[0]!.id as ContentTypeId,
+  // Platforms not yet generated for this topic — starts full, one comes off
+  // each time a generation for it lands. Once empty, the demo is done.
+  remainingPlatformIds: PLATFORM_CONTENT_TYPES.map((p) => p.id) as ContentTypeId[],
 });
 
 /** Best-effort incremental save — never blocks or fails the UX it's attached to. */
@@ -73,11 +80,13 @@ export default function App() {
     isLoading,
     generateError,
     waitlistOpen,
+    waitlistDismissable,
     waitlistSubmitted,
     clarifyingQa,
     contentFeedback,
     pendingTopic,
     pendingContentType,
+    remainingPlatformIds,
   } = state;
 
   const patch = (next: Partial<ReturnType<typeof initialState>>) =>
@@ -126,7 +135,12 @@ export default function App() {
     });
   };
 
-  const runGenerate = async (topic: string, contentType: ContentTypeId, qa: ClarifyingQa[]) => {
+  const runGenerate = async (
+    topic: string,
+    contentType: ContentTypeId,
+    qa: ClarifyingQa[],
+    alreadyValidated = false
+  ) => {
     patch({ isLoading: true, generateError: null });
     try {
       const res = await fetch("/api/generate", {
@@ -138,6 +152,7 @@ export default function App() {
           toneResponses,
           platforms: toneResponses["platforms"],
           clarifyingQa: qa,
+          alreadyValidated,
         }),
       });
       const data = (await res.json()) as GenerateResponseBody;
@@ -153,10 +168,12 @@ export default function App() {
         }));
         return;
       }
+      const platformLabel = PLATFORM_CONTENT_TYPES.find((p) => p.id === contentType)?.label;
       setState((prev) => ({
         ...prev,
         isLoading: false,
-        messages: [...prev.messages, { role: "assistant", kind: "content", content: data.output }],
+        messages: [...prev.messages, { role: "assistant", kind: "content", content: data.output, platformLabel }],
+        remainingPlatformIds: prev.remainingPlatformIds.filter((id) => id !== contentType),
       }));
       void capture(sessionId, { clarifyingQa: qa, generatedOutput: data.output });
     } catch {
@@ -167,7 +184,13 @@ export default function App() {
   const lastMessage = messages[messages.length - 1];
   const awaitingAnswer = lastMessage?.role === "assistant" && lastMessage.kind === "question";
   const hasContent = messages.some((m) => m.role === "assistant" && m.kind === "content");
-  const composerMode: ComposerMode = hasContent ? "done" : awaitingAnswer ? "answer" : "topic";
+  const composerMode: ComposerMode = awaitingAnswer
+    ? "answer"
+    : !hasContent
+      ? "topic"
+      : remainingPlatformIds.length > 0
+        ? "picking"
+        : "done";
 
   const handleComposerSubmit = (text: string, contentType: ContentTypeId) => {
     if (composerMode === "answer" && lastMessage?.role === "assistant" && lastMessage.kind === "question") {
@@ -188,6 +211,22 @@ export default function App() {
     void runGenerate(text, contentType, []);
   };
 
+  // Picking another platform from the "picking" mode picker re-sends the
+  // same original topic, already proven workable by the first generation —
+  // alreadyValidated skips the clarify-turn call entirely for this request.
+  const handlePickPlatform = (contentType: ContentTypeId) => {
+    patch({ pendingContentType: contentType });
+    void runGenerate(pendingTopic, contentType, [], true);
+  };
+
+  // "Full Suite" never generates (that single combined call is exactly what
+  // risks the serverless timeout) — it's a teaser that opens the waitlist
+  // instead, dismissable since the visitor hasn't actually earned/finished
+  // the demo by clicking it.
+  const handleFullSuiteRequested = () => {
+    patch({ waitlistOpen: true, waitlistDismissable: true });
+  };
+
   const handleFeedback = (value: "GOOD" | "BAD") => {
     patch({ contentFeedback: value });
     void capture(sessionId, { contentFeedback: value });
@@ -203,7 +242,7 @@ export default function App() {
   // trigger it, only the generated piece.
   useEffect(() => {
     if (!hasContent || waitlistOpen || waitlistSubmitted) return;
-    const id = window.setTimeout(() => patch({ waitlistOpen: true }), 30_000);
+    const id = window.setTimeout(() => patch({ waitlistOpen: true, waitlistDismissable: false }), 30_000);
     return () => window.clearTimeout(id);
   }, [hasContent, waitlistOpen, waitlistSubmitted]);
 
@@ -265,14 +304,18 @@ export default function App() {
         </div>
 
         {/* Persistent bottom slot: composer before the first topic and
-            through the clarifying-question exchange, then a Get Full Access
-            button once content generates. Also locked during funnelPending so
-            a visitor who was already typing can't keep going behind the
+            through the clarifying-question exchange, then a platform picker
+            once at least one platform has generated, then a Get Full Access
+            button once every platform has. Also locked during funnelPending
+            so a visitor who was already typing can't keep going behind the
             insights funnel once it's up. */}
         <ChatComposer
           mode={composerMode}
           onSubmit={handleComposerSubmit}
-          onGetFullAccess={() => patch({ waitlistOpen: true })}
+          onFullSuiteRequested={handleFullSuiteRequested}
+          onPickPlatform={handlePickPlatform}
+          remainingPlatforms={PLATFORM_CONTENT_TYPES.filter((p) => remainingPlatformIds.includes(p.id))}
+          onGetFullAccess={() => patch({ waitlistOpen: true, waitlistDismissable: false })}
           disabled={isLoading || funnelPending}
         />
       </div>
@@ -298,6 +341,7 @@ export default function App() {
           submitting={waitlistSubmitting}
           error={waitlistError}
           submitted={waitlistSubmitted}
+          dismissableBeforeSubmit={waitlistDismissable}
         />
       )}
     </div>

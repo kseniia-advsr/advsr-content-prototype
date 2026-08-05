@@ -78,12 +78,15 @@ export function WaitlistDialog({
   submitting,
   error,
   submitted,
+  dismissableBeforeSubmit = false,
 }: {
   onClose: () => void;
   onSubmit: (submission: WaitlistSubmission) => void;
   submitting: boolean;
   error: string | null;
   submitted: boolean;
+  /** True only for the "Full Suite" teaser waitlist — every other trigger (30s auto-prompt, finishing the demo) can't be dismissed before submitting. */
+  dismissableBeforeSubmit?: boolean;
 }) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -121,10 +124,11 @@ export function WaitlistDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-8">
       <div className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-advsr-border bg-advsr-surface">
-        {/* No dismiss affordance at all before submission — the visitor
-            either submits the form or leaves it open; the ✕ only appears
-            once submitted is true, so it can't be used to skip the form. */}
-        {submitted && (
+        {/* No dismiss affordance before submission, unless this is the "Full
+            Suite" teaser (dismissableBeforeSubmit) — every other trigger only
+            gets the ✕ once submitted is true, so it can't be used to skip
+            the form. */}
+        {(submitted || dismissableBeforeSubmit) && (
           <button
             type="button"
             onClick={onClose}

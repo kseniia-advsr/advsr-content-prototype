@@ -3,13 +3,21 @@
  * endpoint and used server-side to tailor the format of generated output. The
  * hidden system prompt lives entirely on the server; these only describe the
  * format the professional wants and never expose the engine instructions.
+ *
+ * The list is every platform the full suite includes, broken out one by one
+ * (rather than the full suite itself, which the UI routes to the waitlist
+ * instead of generating, since one combined generation across all platforms
+ * is what risks the serverless timeout). "full_suite" stays a real,
+ * generatable content type server-side for when that constraint goes away.
  */
 export type ContentTypeId =
   | "full_suite"
   | "linkedin_post"
   | "instagram_caption"
-  | "email_newsletter"
-  | "market_commentary";
+  | "facebook_post"
+  | "tiktok_script"
+  | "youtube_script"
+  | "x_thread";
 
 export type ContentTypeOption = {
   id: ContentTypeId;
@@ -17,35 +25,26 @@ export type ContentTypeOption = {
   description: string;
 };
 
+/** The 6 full-suite platforms, individually selectable, in the order offered everywhere else (breakdown cards, platform picker). */
+export const PLATFORM_CONTENT_TYPES: ContentTypeOption[] = [
+  { id: "linkedin_post", label: "LinkedIn", description: "Professional, authority-led text post" },
+  { id: "instagram_caption", label: "Instagram", description: "Short, hook-led caption with hashtags" },
+  { id: "facebook_post", label: "Facebook", description: "Warm, community-minded post" },
+  { id: "tiktok_script", label: "TikTok", description: "Short punchy script with an on-screen hook" },
+  { id: "youtube_script", label: "YouTube", description: "Narrative, teleprompter script, titles and thumbnails" },
+  { id: "x_thread", label: "X", description: "Numbered tweet thread" },
+];
+
 export const CONTENT_TYPES: ContentTypeOption[] = [
+  ...PLATFORM_CONTENT_TYPES,
   {
     id: "full_suite",
     label: "Full suite",
     description: "Every deliverable across all platforms",
   },
-  {
-    id: "linkedin_post",
-    label: "LinkedIn post",
-    description: "Professional, authority-led text post",
-  },
-  {
-    id: "instagram_caption",
-    label: "Instagram caption",
-    description: "Short, hook-led caption with hashtags",
-  },
-  {
-    id: "email_newsletter",
-    label: "Email newsletter",
-    description: "Warm, value-rich update for your list",
-  },
-  {
-    id: "market_commentary",
-    label: "Market commentary",
-    description: "Data-aware view on the market",
-  },
 ];
 
-export const DEFAULT_CONTENT_TYPE: ContentTypeId = "full_suite";
+export const DEFAULT_CONTENT_TYPE: ContentTypeId = PLATFORM_CONTENT_TYPES[0]!.id;
 
 export function isContentTypeId(value: string): value is ContentTypeId {
   return CONTENT_TYPES.some((option) => option.id === value);

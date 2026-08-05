@@ -11,6 +11,14 @@ export type GenerateRequestBody = {
   platforms?: string[];
   /** Clarifying question/answer pairs exchanged so far this turn, oldest first. */
   clarifyingQa?: ClarifyingQa[];
+  /**
+   * True when this exact topic already produced a real generation earlier in
+   * the same session (picking another platform for the same prompt from the
+   * platform picker) — skips the clarify-turn call entirely, since the topic
+   * was already proven workable and re-asking the same question per platform
+   * would only add latency for no benefit.
+   */
+  alreadyValidated?: boolean;
 };
 
 /**

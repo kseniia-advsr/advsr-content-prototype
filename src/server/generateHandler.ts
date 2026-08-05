@@ -26,17 +26,21 @@ const CLARIFY_TURN_MAX_TOKENS = 100;
  * handler's own clean "please try again" message. Failing fast and without
  * retry keeps the handler in control of that message.
  *
- * These numbers are informed by one measured sample, not a guarantee:
- * a bare clarify-turn call took ~2.1s, and a single-platform generation
- * (well under the full-suite ceiling) took ~10.5s. Real network/model
- * variance means neither figure is a hard ceiling — these budgets leave
- * real margin above both, but a full-suite generation (all 6 platforms in
- * one call) is a fundamentally larger request than what was measured and
- * may still exceed both these budgets and the function's own limit. That's
- * an architectural problem these timeouts don't solve, only fail cleanly on.
+ * These numbers are informed by measured samples, not a guarantee. A bare
+ * clarify-turn call took ~2.1s. A single-platform generation using the real
+ * production system prompt (not a toy one) took ~37s, input_tokens=3523 /
+ * output_tokens=2906 — the shared Content Architecture Engine framework
+ * prompt alone is substantial input, on top of actual output length, so
+ * even one platform is nowhere near instant. Real network/model variance
+ * means neither figure is a hard ceiling; these budgets leave margin above
+ * both. A full-suite generation (all 6 platforms in one call) is a
+ * fundamentally larger request again (minutes, extrapolated) and is not
+ * expected to fit even this budget — see the per-platform picker in
+ * ChatComposer.tsx/App.tsx, which is the actual fix for that, keeping every
+ * real generation call scoped to one platform.
  */
 const CLARIFY_TURN_REQUEST_OPTIONS = { maxRetries: 0, timeout: 8_000 };
-const GENERATION_REQUEST_OPTIONS = { maxRetries: 0, timeout: 25_000 };
+const GENERATION_REQUEST_OPTIONS = { maxRetries: 0, timeout: 50_000 };
 
 function extractText(response: Anthropic.Message): string {
   return response.content
@@ -122,7 +126,7 @@ export async function generateHandler(
   const advisorContext = buildAdvisorContext(body.toneResponses ?? null);
   const client = new Anthropic({ apiKey });
 
-  if (clarifyingQa.length < MAX_CLARIFYING_QUESTIONS) {
+  if (!body.alreadyValidated && clarifyingQa.length < MAX_CLARIFYING_QUESTIONS) {
     try {
       const exchangeSoFar = clarifyingQa
         .map((qa) => `Q: ${qa.question}\nA: ${qa.answer}`)

@@ -20,17 +20,17 @@ const LEGAL_BASES = [
   {
     purpose: "Understand which styles, topics and price points are popular, to price and refine the finished product",
     whatWeUse: "Tone-of-voice answers (aggregated/analysed) and pricing feedback",
-    basis: "Legitimate interests — product development (Art. 6(1)(f)); you can object at any time",
+    basis: "Legitimate interests, product development (Art. 6(1)(f)); you can object at any time",
   },
   {
     purpose: "Follow up with you about the waitlist or product launch",
     whatWeUse: "Name, email, existing-membership answer",
-    basis: "Consent (Art. 6(1)(a)) — you can withdraw this at any time",
+    basis: "Consent (Art. 6(1)(a)). You can withdraw this at any time",
   },
   {
     purpose: "Keep the free tool secure and prevent abuse",
     whatWeUse: "IP address and basic technical data",
-    basis: "Legitimate interests — securing our systems (Art. 6(1)(f))",
+    basis: "Legitimate interests, securing our systems (Art. 6(1)(f))",
   },
   {
     purpose: "Comply with our legal obligations",
@@ -78,7 +78,7 @@ export function PrivacyNotice({ onClose }: { onClose: () => void }) {
         </button>
 
         <h1 className="font-heading text-2xl font-bold text-advsr-text">
-          ADVSR Content Engine — Privacy Notice
+          ADVSR Content Engine: Privacy Notice
         </h1>
 
         <Section number="1" title="Introduction">
@@ -179,7 +179,7 @@ export function PrivacyNotice({ onClose }: { onClose: () => void }) {
             {PROCESSORS.map((row) => (
               <div key={row.who} className="rounded-xl border border-advsr-border bg-advsr-surface p-4">
                 <p className="font-medium text-advsr-text">
-                  {row.who} <span className="font-normal text-advsr-muted">— {row.role}</span>
+                  {row.who} <span className="font-normal text-advsr-muted">({row.role})</span>
                 </p>
                 <p className="mt-1 text-advsr-muted">{row.what}</p>
               </div>
