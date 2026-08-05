@@ -279,12 +279,14 @@ export default function App() {
     }
   };
 
-  // Reset submitted/error state on close so the *next* time the waitlist
-  // opens (e.g. a second "Full Suite" click after already joining once this
-  // session) it always shows the actual form, not a stale "You're on the
-  // list" confirmation carried over from an earlier, already-closed dialog.
+  // Deliberately leaves waitlistSubmitted untouched: once actually submitted
+  // it stays true for the rest of the session, so every later trigger (the
+  // 30s auto-prompt, "Get Full Access", a second "Full Suite" click) shows
+  // the "You're on the list" confirmation instead of the blank form again.
+  // Only a dismiss *before* submitting leaves it false, so that case still
+  // gets the real form back the next time the dialog opens.
   const handleWaitlistClose = () => {
-    patch({ waitlistOpen: false, waitlistSubmitted: false });
+    patch({ waitlistOpen: false });
     setWaitlistError(null);
   };
 
