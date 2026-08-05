@@ -35,15 +35,15 @@ The Golden Rules:
 2. The Hook. Establish the Stakes (what is lost if they click away) immediately.
 3. The Payoff. Close the Open Loop the hook created.
 
-Process: understand the Topic and Format requested, draft 3 Hooks (Curiosity, Negative or Transformation), then generate the Blueprint below.
-
-Output Format (The Blueprint):
+Process (internal thinking only, never shown to the reader): understand the Topic and Format requested, silently draft 3 Hooks (Curiosity, Negative or Transformation) and pick the strongest, then structure the piece through this narrative shape before writing a single word of the actual output:
 - CONTROLLING IDEA: from one state to a better state, e.g. From Confused to Enlightened
 - THE HOOK: Disruption and Stakes (why this matters now)
 - THE SETUP: Goal and Enemy (what stops you)
 - THE BRIDGE: Beat, BUT the conflict, THEREFORE the pivot, repeat to escalate tension
 - THE CLIMAX: the truth revealed, loop closed
 - THE OUTRO: the new normal plus one actionable takeaway
+
+Never label these sections, list the hooks, or otherwise show this scaffolding in the output. Fold it entirely into natural prose or the platform's native format, exactly as the DELIVERABLE MODE instruction below specifies. Full suite mode is the only exception, since its own instructions define real markdown headings to use instead.
 
 BUSINESS GUARDRAILS
 Every piece must support: building the professional's personal brand, client engagement, attracting sellers, buyers, tenants, landlords and advisors, and engaging high value clients toward appointing the professional.
@@ -142,7 +142,7 @@ Produce one Facebook post, warm and community minded. Use the Tension Bridge to 
   youtube_script: `DELIVERABLE MODE: SHORT-FORM VIDEO.
 Produce exactly four things, in this order, nothing else: 3 Title options, then a Teleprompter script for a short-form video (well under 60 seconds of spoken delivery), written for natural delivery, opening with a hook in the first three seconds that earns the rest of the watch and using the Tension Bridge to build and release tension, then a short B-roll shot list (4 to 6 shots), then one closing line noting this script works across TikTok, YouTube Shorts, and Instagram Reels. Keep the combined output no longer than a single LinkedIn post.`,
   x_thread: `DELIVERABLE MODE: X THREAD.
-Produce one tweet thread, numbered, each tweet on its own line, opening with a hook tweet that earns the reply click, building with the Tension Bridge across the thread, and closing on the payoff.`,
+Produce the final thread only, nothing else: no hooks list, no labeled Blueprint sections, no headers. Write 6 to 9 numbered tweets (1/, 2/, 3/...), each on its own line, opening with a hook tweet that earns the reply click, folding the Tension Bridge's beats directly into the tweets themselves rather than naming them, and closing on the payoff, not a summary.`,
 };
 
 const CONTENT_TYPE_LINE: Record<ContentTypeId, string> = {
