@@ -1,10 +1,8 @@
 export function Sidebar({
   onNewContent,
-  onGetFullAccess,
   newContentDisabled,
 }: {
   onNewContent: () => void;
-  onGetFullAccess: () => void;
   /** Locks "+ New content" while the insights funnel is pending or open, so a reset can't land mid-funnel. */
   newContentDisabled?: boolean;
 }) {
@@ -31,16 +29,6 @@ export function Sidebar({
       </div>
 
       <div className="flex-1" />
-
-      <div className="px-3 pb-2 pt-3">
-        <button
-          type="button"
-          onClick={onGetFullAccess}
-          className="w-full rounded-lg bg-advsr-orange px-3 py-2 font-heading text-sm font-semibold text-black transition-opacity hover:opacity-90"
-        >
-          Get full access
-        </button>
-      </div>
     </aside>
   );
 }

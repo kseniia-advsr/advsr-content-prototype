@@ -8,24 +8,27 @@ const PLACEHOLDER_ROTATION_MS = 7000;
  *   starter-prompt placeholders.
  * "answer": replying to a clarifying question — no content-type selector,
  *   short single-line placeholder.
- * "done": the one premium generation has landed — composer stays visible
- *   (per the persistent-chat requirement) but is inert, since the "one
- *   premium generation" business rule means no further free generations.
+ * "done": the one premium generation has landed — the composer itself is
+ *   gone (the "one premium generation" business rule means no further free
+ *   generations), replaced by a Get Full Access button in the same slot.
  */
 export type ComposerMode = "topic" | "answer" | "done";
 
 /**
- * Persistent composer, always rendered at the bottom of the screen — before
- * the first topic, through the clarifying-question exchange, and after
- * content has generated — rather than disappearing after one use.
+ * Persistent bottom slot: the composer before the first topic and through
+ * the clarifying-question exchange, then a Get Full Access button once
+ * content has generated — always present in that position rather than
+ * disappearing or going inert after one use.
  */
 export function ChatComposer({
   mode,
   onSubmit,
+  onGetFullAccess,
   disabled,
 }: {
   mode: ComposerMode;
   onSubmit: (text: string, contentType: ContentTypeId) => void;
+  onGetFullAccess: () => void;
   disabled: boolean;
 }) {
   const [input, setInput] = useState("");
@@ -40,11 +43,9 @@ export function ChatComposer({
     return () => clearInterval(id);
   }, [mode]);
 
-  const isDone = mode === "done";
-
   const start = (text: string) => {
     const trimmed = text.trim();
-    if (!trimmed || disabled || isDone) return;
+    if (!trimmed || disabled) return;
     onSubmit(trimmed, contentType);
     setInput("");
   };
@@ -53,13 +54,21 @@ export function ChatComposer({
   // reply (not yet an assistant question), so `mode` alone would momentarily
   // read as "topic" and flash the starter-prompt placeholder — show a
   // neutral loading placeholder instead regardless of mode.
-  const placeholder = disabled
-    ? "Thinking…"
-    : mode === "topic"
-      ? STARTER_PROMPTS[placeholderIndex]
-      : mode === "answer"
-        ? "Your answer…"
-        : "Your free generation is used. Join the waitlist for unlimited access.";
+  const placeholder = disabled ? "Thinking…" : mode === "topic" ? STARTER_PROMPTS[placeholderIndex] : "Your answer…";
+
+  if (mode === "done") {
+    return (
+      <div className="bg-advsr-bg px-6 py-4">
+        <button
+          type="button"
+          onClick={onGetFullAccess}
+          className="mx-auto block w-full max-w-3xl rounded-2xl bg-advsr-orange px-4 py-3 text-center font-heading font-semibold text-black shadow-lg transition-opacity hover:opacity-90"
+        >
+          Get full access
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-advsr-bg px-6 py-4">
@@ -81,7 +90,7 @@ export function ChatComposer({
           }}
           placeholder={placeholder}
           rows={mode === "topic" ? 3 : 1}
-          disabled={disabled || isDone}
+          disabled={disabled}
           className="min-h-[2.25rem] w-full resize-none border-0 bg-transparent text-base text-advsr-text placeholder:text-advsr-muted focus:outline-none disabled:opacity-50"
         />
         <div className="flex items-center justify-between gap-3 pt-2">
@@ -104,7 +113,7 @@ export function ChatComposer({
           )}
           <button
             type="submit"
-            disabled={!input.trim() || disabled || isDone}
+            disabled={!input.trim() || disabled}
             aria-label="Send"
             className="flex size-9 shrink-0 items-center justify-center rounded-full bg-advsr-orange text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
           >

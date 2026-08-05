@@ -121,14 +121,19 @@ export function WaitlistDialog({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-8">
       <div className="relative w-full max-w-xl overflow-hidden rounded-2xl border border-advsr-border bg-advsr-surface">
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close"
-          className="absolute right-4 top-4 text-advsr-muted hover:text-advsr-text"
-        >
-          ✕
-        </button>
+        {/* No dismiss affordance at all before submission — the visitor
+            either submits the form or leaves it open; the ✕ only appears
+            once submitted is true, so it can't be used to skip the form. */}
+        {submitted && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="absolute right-4 top-4 text-advsr-muted hover:text-advsr-text"
+          >
+            ✕
+          </button>
+        )}
 
         <div className="max-h-[85vh] overflow-y-auto px-6 py-6">
           {submitted ? (
@@ -139,13 +144,6 @@ export function WaitlistDialog({
               <p className="mt-2 text-advsr-muted">
                 We'll be in touch as the full ADVSR content engine goes live.
               </p>
-              <button
-                type="button"
-                onClick={onClose}
-                className="mt-6 rounded-lg border border-advsr-border px-4 py-2 text-sm text-advsr-text transition-colors hover:border-advsr-orange-2"
-              >
-                Close
-              </button>
             </div>
           ) : (
             <>

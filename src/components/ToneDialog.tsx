@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   TONE_SECTIONS,
   type ToneResponses,
@@ -11,6 +12,7 @@ import { SingleSelectField } from "./fields/SingleSelectField";
 import { TextField } from "./fields/TextField";
 import { LocationField } from "./fields/LocationField";
 import { ChannelRatingField } from "./fields/ChannelRatingField";
+import { PrivacyNotice } from "./PrivacyNotice";
 
 /**
  * All 16 pages of the tone-of-voice questionnaire, in original source order.
@@ -83,6 +85,7 @@ export function ToneDialog({
   onSectionIndexChange: (next: number) => void;
   onFinish: () => void;
 }) {
+  const [privacyOpen, setPrivacyOpen] = useState(false);
   const sections = TONE_SECTIONS.filter((s) => PROTOTYPE_SECTION_IDS.includes(s.id));
   const section = sections[sectionIndex];
   const isFirst = sectionIndex === 0;
@@ -233,37 +236,59 @@ export function ToneDialog({
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3 border-t border-advsr-border px-6 py-4">
-          <button
-            type="button"
-            onClick={() => onSectionIndexChange(Math.max(0, sectionIndex - 1))}
-            disabled={isFirst}
-            className="rounded-lg px-3 py-2 text-sm text-advsr-muted transition-colors hover:text-advsr-text disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            ‹ Back
-          </button>
+        <div className="grid grid-cols-3 items-center gap-3 border-t border-advsr-border px-6 py-4">
+          <div className="justify-self-start">
+            <button
+              type="button"
+              onClick={() => onSectionIndexChange(Math.max(0, sectionIndex - 1))}
+              disabled={isFirst}
+              className="rounded-lg px-3 py-2 text-sm text-advsr-muted transition-colors hover:text-advsr-text disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              ‹ Back
+            </button>
+          </div>
 
-          {isLast ? (
-            <button
-              type="button"
-              onClick={onFinish}
-              disabled={!sectionComplete}
-              className="rounded-lg bg-advsr-orange px-4 py-2 font-heading font-semibold text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Save profile
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => onSectionIndexChange(Math.min(sections.length - 1, sectionIndex + 1))}
-              disabled={!sectionComplete}
-              className="rounded-lg bg-advsr-orange px-4 py-2 font-heading font-semibold text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Next ›
-            </button>
-          )}
+          <div className="justify-self-center text-center">
+            {isFirst && (
+              <p className="text-xs text-advsr-muted">
+                By continuing, you agree to ADVSR's{" "}
+                <button
+                  type="button"
+                  onClick={() => setPrivacyOpen(true)}
+                  className="text-advsr-orange hover:underline"
+                >
+                  Privacy Notice
+                </button>{" "}
+                for this tool.
+              </p>
+            )}
+          </div>
+
+          <div className="justify-self-end">
+            {isLast ? (
+              <button
+                type="button"
+                onClick={onFinish}
+                disabled={!sectionComplete}
+                className="rounded-lg bg-advsr-orange px-4 py-2 font-heading font-semibold text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Save profile
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => onSectionIndexChange(Math.min(sections.length - 1, sectionIndex + 1))}
+                disabled={!sectionComplete}
+                className="rounded-lg bg-advsr-orange px-4 py-2 font-heading font-semibold text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Next ›
+              </button>
+            )}
+          </div>
         </div>
       </div>
+
+      {privacyOpen && <PrivacyNotice onClose={() => setPrivacyOpen(false)} />}
     </div>
   );
 }

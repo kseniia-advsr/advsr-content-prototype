@@ -14,6 +14,30 @@ import type { ClarifyingQa, GenerateRequestBody, HandlerResult } from "../lib/ty
 const MAX_TOPIC_LENGTH = 2000;
 const CLARIFY_TURN_MAX_TOKENS = 100;
 
+/**
+ * This whole handler runs as one synchronous Netlify Function call with a
+ * hard wall-clock execution limit (reported anywhere from 10s to 60s
+ * depending on plan/account — genuinely unclear; see generateHandler
+ * discussion history). The Anthropic SDK's own defaults (2 retries,
+ * 10-minute internal timeout) assume no such external deadline exists, so
+ * left uncustomized they can silently burn the whole budget retrying a
+ * transient hiccup before the function itself gets killed — which surfaces
+ * to the visitor as a confusing generic network error instead of this
+ * handler's own clean "please try again" message. Failing fast and without
+ * retry keeps the handler in control of that message.
+ *
+ * These numbers are informed by one measured sample, not a guarantee:
+ * a bare clarify-turn call took ~2.1s, and a single-platform generation
+ * (well under the full-suite ceiling) took ~10.5s. Real network/model
+ * variance means neither figure is a hard ceiling — these budgets leave
+ * real margin above both, but a full-suite generation (all 6 platforms in
+ * one call) is a fundamentally larger request than what was measured and
+ * may still exceed both these budgets and the function's own limit. That's
+ * an architectural problem these timeouts don't solve, only fail cleanly on.
+ */
+const CLARIFY_TURN_REQUEST_OPTIONS = { maxRetries: 0, timeout: 8_000 };
+const GENERATION_REQUEST_OPTIONS = { maxRetries: 0, timeout: 25_000 };
+
 function extractText(response: Anthropic.Message): string {
   return response.content
     .filter((block): block is Anthropic.TextBlock => block.type === "text")
@@ -103,23 +127,26 @@ export async function generateHandler(
       const exchangeSoFar = clarifyingQa
         .map((qa) => `Q: ${qa.question}\nA: ${qa.answer}`)
         .join("\n");
-      const turnResponse = await client.messages.create({
-        model: CONTENT_MODEL,
-        max_tokens: CLARIFY_TURN_MAX_TOKENS,
-        system: CLARIFY_TURN_SYSTEM_PROMPT,
-        messages: [
-          {
-            role: "user",
-            content: [
-              `Topic: ${topic}`,
-              advisorContext ? `Advisor profile:${advisorContext}` : "",
-              exchangeSoFar ? `Answered so far:\n${exchangeSoFar}` : "",
-            ]
-              .filter(Boolean)
-              .join("\n\n"),
-          },
-        ],
-      });
+      const turnResponse = await client.messages.create(
+        {
+          model: CONTENT_MODEL,
+          max_tokens: CLARIFY_TURN_MAX_TOKENS,
+          system: CLARIFY_TURN_SYSTEM_PROMPT,
+          messages: [
+            {
+              role: "user",
+              content: [
+                `Topic: ${topic}`,
+                advisorContext ? `Advisor profile:${advisorContext}` : "",
+                exchangeSoFar ? `Answered so far:\n${exchangeSoFar}` : "",
+              ]
+                .filter(Boolean)
+                .join("\n\n"),
+            },
+          ],
+        },
+        CLARIFY_TURN_REQUEST_OPTIONS
+      );
       const question = parseClarifyTurnResponse(extractText(turnResponse));
       if (question) {
         return { statusCode: 200, body: { question } };
@@ -141,12 +168,15 @@ export async function generateHandler(
   const systemPrompt = buildSystemPrompt(contentType, null, advisorContext, platforms);
 
   try {
-    const response = await client.messages.create({
-      model: CONTENT_MODEL,
-      max_tokens: PREMIUM_MAX_TOKENS,
-      system: systemPrompt,
-      messages: [{ role: "user", content: `${topic}${qaBlock}` }],
-    });
+    const response = await client.messages.create(
+      {
+        model: CONTENT_MODEL,
+        max_tokens: PREMIUM_MAX_TOKENS,
+        system: systemPrompt,
+        messages: [{ role: "user", content: `${topic}${qaBlock}` }],
+      },
+      GENERATION_REQUEST_OPTIONS
+    );
 
     return { statusCode: 200, body: { output: extractText(response) } };
   } catch (err) {

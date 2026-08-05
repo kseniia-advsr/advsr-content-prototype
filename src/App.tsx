@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Sidebar } from "./components/Sidebar";
 import { ToneDialog } from "./components/ToneDialog";
 import { InsightsFunnel, type InsightsFunnelResult } from "./components/InsightsFunnel";
@@ -6,7 +6,6 @@ import { Hero } from "./components/Hero";
 import { ChatComposer, type ComposerMode } from "./components/ChatComposer";
 import { ChatTranscript, type ChatMessage } from "./components/ChatTranscript";
 import { WaitlistDialog, type WaitlistSubmission } from "./components/WaitlistDialog";
-import { useIdleOrScrollGate } from "./lib/useIdleOrScrollGate";
 import type { ToneResponses } from "./engine/toneProfile";
 import type { ContentTypeId } from "./engine/contentTypes";
 import type {
@@ -197,13 +196,16 @@ export default function App() {
   const lastAssistantOutput =
     [...messages].reverse().find((m) => m.role === "assistant" && m.kind === "content")?.content ?? "";
 
-  // Auto-open the waitlist dialog once the reader has scrolled the response
-  // to the bottom, or after 60s of no scroll/mouse/keyboard activity —
-  // whichever comes first. Only arms once actual content has landed — the
-  // tone-of-voice questionnaire, the insights funnel, and any clarifying
-  // follow-up questions must never trigger it, only the generated piece.
-  const gate = useCallback(() => patch({ waitlistOpen: true }), []);
-  useIdleOrScrollGate(hasContent && !waitlistOpen && !waitlistSubmitted, gate, 60000);
+  // Auto-open the waitlist dialog a flat 30s after the generation lands,
+  // regardless of what the visitor does in the meantime. Only arms once
+  // actual content has landed — the tone-of-voice questionnaire, the
+  // insights funnel, and any clarifying follow-up questions must never
+  // trigger it, only the generated piece.
+  useEffect(() => {
+    if (!hasContent || waitlistOpen || waitlistSubmitted) return;
+    const id = window.setTimeout(() => patch({ waitlistOpen: true }), 30_000);
+    return () => window.clearTimeout(id);
+  }, [hasContent, waitlistOpen, waitlistSubmitted]);
 
   const handleWaitlist = async (wl: WaitlistSubmission) => {
     setWaitlistSubmitting(true);
@@ -240,11 +242,7 @@ export default function App() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-advsr-bg">
-      <Sidebar
-        onNewContent={resetSession}
-        onGetFullAccess={() => patch({ waitlistOpen: true })}
-        newContentDisabled={funnelPending}
-      />
+      <Sidebar onNewContent={resetSession} newContentDisabled={funnelPending} />
 
       <div className="flex min-w-0 flex-1 flex-col">
         {generateError && (
@@ -266,9 +264,17 @@ export default function App() {
           )}
         </div>
 
-        {/* Persistent composer: stays visible before the first topic, through
-            the clarifying-question exchange, and after content generates. */}
-        <ChatComposer mode={composerMode} onSubmit={handleComposerSubmit} disabled={isLoading} />
+        {/* Persistent bottom slot: composer before the first topic and
+            through the clarifying-question exchange, then a Get Full Access
+            button once content generates. Also locked during funnelPending so
+            a visitor who was already typing can't keep going behind the
+            insights funnel once it's up. */}
+        <ChatComposer
+          mode={composerMode}
+          onSubmit={handleComposerSubmit}
+          onGetFullAccess={() => patch({ waitlistOpen: true })}
+          disabled={isLoading || funnelPending}
+        />
       </div>
 
       {toneOpen && (
