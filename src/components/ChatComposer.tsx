@@ -117,15 +117,12 @@ export function ChatComposer({
                   onClick={() => onPickPlatform(option.id)}
                   disabled={disabled}
                   className={
-                    "flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm transition-colors disabled:cursor-not-allowed " +
+                    "rounded-full border px-3 py-1.5 text-sm transition-colors disabled:cursor-not-allowed " +
                     (isGenerating
                       ? "border-advsr-orange bg-advsr-orange/10 text-advsr-orange"
                       : "border-advsr-border text-advsr-muted hover:border-advsr-orange-2 hover:text-advsr-text disabled:opacity-50")
                   }
                 >
-                  {isGenerating && (
-                    <span className="size-3 shrink-0 animate-spin rounded-full border-2 border-advsr-orange/30 border-t-advsr-orange" />
-                  )}
                   {option.label}
                 </button>
               );
