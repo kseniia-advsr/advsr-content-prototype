@@ -249,6 +249,14 @@ export default function App() {
     patch({ waitlistOpen: true, waitlistDismissable: true });
   };
 
+  // The Sidebar's persistent "Get full access" shortcut — same dismissable
+  // teaser behavior as "Full Suite" (the visitor hasn't earned/finished the
+  // demo by clicking it either), just reachable at any time rather than
+  // waiting for a specific trigger.
+  const handleGetFullAccessRequested = () => {
+    patch({ waitlistOpen: true, waitlistDismissable: true });
+  };
+
   const handleFeedback = (value: "GOOD" | "BAD") => {
     patch({ contentFeedback: value });
     void capture(sessionId, { contentFeedback: value });
@@ -314,7 +322,11 @@ export default function App() {
 
   return (
     <div className="flex h-screen overflow-hidden bg-advsr-bg">
-      <Sidebar onNewContent={resetSession} newContentDisabled={funnelPending} />
+      <Sidebar
+        onNewContent={resetSession}
+        onGetFullAccess={handleGetFullAccessRequested}
+        newContentDisabled={funnelPending}
+      />
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Styled to blend in rather than alarm — most of these are a

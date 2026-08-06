@@ -1,8 +1,11 @@
 export function Sidebar({
   onNewContent,
+  onGetFullAccess,
   newContentDisabled,
 }: {
   onNewContent: () => void;
+  /** Always-visible shortcut into the (dismissable) waitlist, independent of the composer's own "done" state or the 30s auto-prompt — a visitor shouldn't have to finish the demo to find it. */
+  onGetFullAccess: () => void;
   /** Locks "+ New content" while the insights funnel is pending or open, so a reset can't land mid-funnel. */
   newContentDisabled?: boolean;
 }) {
@@ -29,6 +32,16 @@ export function Sidebar({
       </div>
 
       <div className="flex-1" />
+
+      <div className="px-3 pb-2 pt-3">
+        <button
+          type="button"
+          onClick={onGetFullAccess}
+          className="w-full rounded-lg bg-advsr-orange px-3 py-2 font-heading text-sm font-semibold text-black transition-opacity hover:opacity-90"
+        >
+          Get full access
+        </button>
+      </div>
     </aside>
   );
 }
