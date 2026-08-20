@@ -65,7 +65,7 @@ export function WelcomeScreen({ onContinue }: { onContinue: () => void }) {
             </h1>
             <p className="text-base leading-relaxed text-advsr-muted">
               You <strong className="font-semibold text-advsr-text">want</strong> to post online.
-              They're just short on time, and nervous about what to say.
+              You're just short on time, and nervous about what to say.
             </p>
 
             <div className="border-t border-advsr-border" />
@@ -86,7 +86,7 @@ export function WelcomeScreen({ onContinue }: { onContinue: () => void }) {
               ))}
             </div>
 
-            <p className="text-sm text-advsr-muted">
+            <p className="text-lg font-bold text-advsr-text">
               Consider this tool your guardrails; a place to communicate freely and comfortably
               online.
             </p>
