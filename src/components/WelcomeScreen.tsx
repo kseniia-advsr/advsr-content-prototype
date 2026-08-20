@@ -1,10 +1,14 @@
 /**
- * Public Supabase Storage URL for the hero intro video (re-wrapped to MP4,
- * not re-encoded, per the ffmpeg step in the build notes). Left empty until
- * the real link is supplied — the video block simply doesn't render rather
- * than showing a broken player.
+ * Public Supabase Storage URL for the hero intro video. Re-wrapped from the
+ * originally uploaded .mov (video/quicktime, unreliable outside Safari) to
+ * MP4 via `ffmpeg -c copy` (stream copy, no re-encode, no quality loss) plus
+ * `-movflags +faststart` so playback can start before the whole file
+ * downloads, then uploaded as a new file in the same bucket rather than
+ * overwriting the original. Source has no audio track, confirming the
+ * muted/decorative treatment below rather than needing playback controls.
  */
-const HERO_VIDEO_URL = "";
+const HERO_VIDEO_URL =
+  "https://mhiwonnhxlwvwelwyvgn.supabase.co/storage/v1/object/public/welcome_video/hero-demo.mp4";
 
 type Quote = { name: string; quote: string; headshot: string };
 
