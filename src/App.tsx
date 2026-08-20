@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Sidebar } from "./components/Sidebar";
+import { WelcomeScreen } from "./components/WelcomeScreen";
 import { ToneDialog } from "./components/ToneDialog";
 import { InsightsFunnel, type InsightsFunnelResult } from "./components/InsightsFunnel";
 import { Hero } from "./components/Hero";
@@ -18,6 +19,11 @@ import type {
 const FUNNEL_DELAY_MS = 7000;
 
 const initialState = () => ({
+  // A one-time landing step shown before the tone dialog even opens. Purely
+  // an added cover in front of the existing flow — toneOpen is still true
+  // from the very start, it just doesn't render until this closes, so
+  // nothing about the tone dialog's own content or timing changes.
+  welcomeOpen: true,
   toneOpen: true,
   toneResponses: {} as ToneResponses,
   toneSectionIndex: 0,
@@ -71,6 +77,7 @@ export default function App() {
   const [waitlistSubmitting, setWaitlistSubmitting] = useState(false);
 
   const {
+    welcomeOpen,
     toneOpen,
     toneResponses,
     toneSectionIndex,
@@ -107,6 +114,11 @@ export default function App() {
     setWaitlistError(null);
     setWaitlistSubmitting(false);
   };
+
+  // Closes the new landing step only — toneOpen is already true underneath
+  // (set in initialState, never touched here), so the tone dialog appears
+  // exactly as it always did, just one step later than before.
+  const handleWelcomeContinue = () => patch({ welcomeOpen: false });
 
   const handleToneFinish = () => {
     // Closing the tone dialog doesn't reveal the funnel immediately — it
@@ -387,7 +399,9 @@ export default function App() {
         />
       </div>
 
-      {toneOpen && (
+      {welcomeOpen && <WelcomeScreen onContinue={handleWelcomeContinue} />}
+
+      {!welcomeOpen && toneOpen && (
         <ToneDialog
           responses={toneResponses}
           onChange={(updater) =>
