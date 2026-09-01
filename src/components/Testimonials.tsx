@@ -25,8 +25,9 @@ const TESTIMONIALS: Testimonial[] = [
   {
     name: "Ryan Serhant",
     company: "SERHANT.",
-    quote: "Let everyone know about it... post on social media, talk about it every chance you get.",
-    highlights: ["talk about it every chance you get"],
+    quote:
+      "If you make a big sale, you're one step closer to being the salesperson you want to be. Let everyone know about it. Send out postcards, post on social media, talk about it every chance you get.",
+    highlights: ["post on social media"],
     headshot: "/ryan-serhant.jpg",
   },
 ];
