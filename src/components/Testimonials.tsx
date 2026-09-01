@@ -8,12 +8,15 @@ type Testimonial = {
 };
 
 /**
- * Three real, verbatim testimonials, quoted exactly as given, not
- * paraphrased. Headshots live directly in public/ (not public/testimonials/
- * as originally described), referenced here with their actual root-relative
- * paths.
+ * Three testimonials. Daniel Daggers' is real and verbatim, quoted exactly
+ * as given, not paraphrased. Tommy Moore and Jennifer Purchase are
+ * placeholders — see the TODO below. Headshots live directly in public/ (not
+ * public/testimonials/ as originally described), referenced here with their
+ * actual root-relative paths.
  */
 const TESTIMONIALS: Testimonial[] = [
+  // TODO: replace with real agent testimonials before this ships publicly.
+  // "Tommy Moore" and "Jennifer Purchase" are placeholders, not real people.
   {
     name: "Tommy Moore",
     company: "DDRE Global",
