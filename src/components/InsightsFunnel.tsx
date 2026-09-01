@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { SingleSelectField } from "./fields/SingleSelectField";
-import { InfluenceRings } from "./InfluenceRings";
+import { GrowthMultiplier } from "./GrowthMultiplier";
 import { Testimonials } from "./Testimonials";
 import type { ToneField } from "../engine/toneProfile";
 import { RECOMMENDED_POSTS_PER_WEEK, calculateTimeSaved } from "../lib/timeSaved";
@@ -36,6 +36,9 @@ const PLATFORM_BELIEF_FIELD: ToneField = {
 };
 
 const RECOMMENDED_FREQUENCY_LABEL = `about ${RECOMMENDED_POSTS_PER_WEEK} times a week`;
+
+/** Headcount assumption behind the "whole agency" posting-volume line below — confirmed at 20, not derived from anywhere else. */
+const AGENCY_SIZE = 20;
 
 type Step =
   | "frequency_before"
@@ -183,8 +186,8 @@ export function InsightsFunnel({ onFinish }: { onFinish: (result: InsightsFunnel
               <p className="mb-4 text-sm text-advsr-muted">Same tool, three different results.</p>
               <Testimonials />
               <p className="mt-5 text-sm text-advsr-muted">
-                Our recommendation: {RECOMMENDED_FREQUENCY_LABEL}. That's 60 posts a week for the
-                whole agency.
+                Our recommendation: {RECOMMENDED_FREQUENCY_LABEL}. That's{" "}
+                {RECOMMENDED_POSTS_PER_WEEK * AGENCY_SIZE} posts a week for the whole agency.
               </p>
             </>
           )}
@@ -256,20 +259,17 @@ export function InsightsFunnel({ onFinish }: { onFinish: (result: InsightsFunnel
 
           {step === "influence_scale" && (
             <>
-              <h3 className="mb-1 font-heading text-lg font-semibold text-advsr-text">
-                Influence scales
+              <h3 className="mb-1 text-center font-heading text-lg font-bold uppercase tracking-wide text-advsr-text">
+                Growth is a multiplier
               </h3>
-              <p className="mb-5 text-sm text-advsr-muted">
-                The algorithms changed. It's not about how many people are watching today. It's
-                about how consistently you show up.
+              <p className="mb-6 text-center text-sm font-semibold uppercase tracking-wide text-advsr-orange">
+                From 10 to 100,000+ followers
               </p>
               <div className="my-6">
-                <InfluenceRings />
+                <GrowthMultiplier />
               </div>
-              <p className="text-center text-sm font-semibold text-advsr-text">
-                Ten people talking about you reaches a hundred. A hundred reaches thousands.
-                <br />
-                Growth compounds from there.
+              <p className="text-center text-xs font-semibold uppercase tracking-wide text-advsr-muted">
+                Every follower counts. Every step matters.
               </p>
             </>
           )}
@@ -280,7 +280,7 @@ export function InsightsFunnel({ onFinish }: { onFinish: (result: InsightsFunnel
                 What this saves you
               </h3>
               <p className="text-sm leading-relaxed text-advsr-text">
-                Every post you don't write by hand is an hour saved.
+                Every post you don't write by hand saves you 20 minutes.
               </p>
 
               <div className="mt-5 grid grid-cols-3 gap-3">
@@ -332,6 +332,10 @@ export function InsightsFunnel({ onFinish }: { onFinish: (result: InsightsFunnel
                   back this month.
                 </p>
               </div>
+
+              <p className="mt-4 text-sm font-semibold text-advsr-text">
+                Keeps you on personal brand and on corporate brand.
+              </p>
             </>
           )}
         </div>
