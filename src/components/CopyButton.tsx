@@ -15,7 +15,7 @@ export function CopyButton({ text }: { text: string }) {
       onClick={copy}
       className="rounded-md border border-advsr-border px-2.5 py-1 text-xs text-advsr-muted transition-colors hover:border-advsr-orange-2 hover:text-advsr-text"
     >
-      {copied ? "Copied" : "Copy"}
+      {copied ? "Copied" : "Copy and paste"}
     </button>
   );
 }
