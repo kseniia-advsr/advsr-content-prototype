@@ -313,7 +313,7 @@ export const TONE_SECTIONS: ToneSection[] = [
         label: "Where should your personality come through most?",
         type: "channels",
         channels: [
-          "Email", "WhatsApp", "LinkedIn", "Instagram", "Video",
+          "Email", "WhatsApp", "iMessage", "LinkedIn", "Instagram", "Video",
           "Public Speaking", "Presentations", "Property Descriptions",
           "Client Reports", "Proposals",
         ],
