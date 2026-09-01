@@ -6,7 +6,7 @@
  * publishing)" section is omitted entirely, per the document's own
  * instruction; the "[insert URL]" placeholder in the introduction is
  * dropped rather than guessed, since the tool's own URL isn't fixed here;
- * and the "[insert email]" placeholder in Section 9 uses sara@advsr.ai,
+ * and the "[insert email]" placeholder in Section 9 uses hi@advsr.ai,
  * the privacy contact already named in Sections 2 and 14 of the same
  * document. No other wording changes.
  */
