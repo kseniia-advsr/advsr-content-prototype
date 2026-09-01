@@ -63,26 +63,19 @@ function CrowdIcon() {
   );
 }
 
-/** A five-point star, stroked in brand orange — the "10,000 followers" tier, where reach turns into influence. */
+/** A five-point star — the "10,000 followers" tier. Styled the same neutral tone as every card before the payoff one, not orange; only the 100,000+ card is meant to stand out. */
 function StarIcon() {
   return (
-    <svg viewBox="0 0 24 24" width={26} height={26} fill="none" stroke="var(--color-advsr-orange)" strokeWidth={1.5}>
+    <svg viewBox="0 0 24 24" width={24} height={24} fill="none" stroke="var(--color-advsr-text)" strokeWidth={1.5}>
       <path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.2l7.1-.6z" strokeLinejoin="round" />
     </svg>
   );
 }
 
-/** A globe, stroked in a lighter orange — the "100,000+" payoff tier. */
+/** A globe, stroked in brand orange — the one payoff tier meant to stand out. */
 function GlobeIcon() {
   return (
-    <svg
-      viewBox="0 0 24 24"
-      width={30}
-      height={30}
-      fill="none"
-      stroke="var(--color-advsr-orange-2)"
-      strokeWidth={1.4}
-    >
+    <svg viewBox="0 0 24 24" width={26} height={26} fill="none" stroke="var(--color-advsr-orange)" strokeWidth={1.4}>
       <circle cx={12} cy={12} r={9} />
       <path d="M3 12h18M12 3a13 13 0 010 18M12 3a13 13 0 000 18" />
     </svg>
@@ -108,11 +101,18 @@ const STAGES: Stage[] = [
 /**
  * Five growth-stage cards, 10 through 100,000+ followers, replacing the old
  * concentric-rings visual (InfluenceRings.tsx) with a more literal "here's
- * the ladder" progression. A row at sm+ (not lg+, unlike most responsive
- * splits in this app, e.g. WelcomeScreen.tsx): this renders inside
- * InsightsFunnel's modal, which is capped at max-w-2xl regardless of
- * viewport, so the relevant breakpoint is real narrow phones (below sm),
- * not desktop-vs-mobile — past that width the row already fits.
+ * the ladder" progression. Styled to match the value_props step's stat
+ * boxes (same border/bg/rounding, same font-heading number treatment) so it
+ * reads as one consistent questionnaire rather than a one-off design. Only
+ * the 100,000+ card gets the highlighted (orange border, warm gradient,
+ * glow) treatment — every other card, including the star tier, shares the
+ * exact same plain styling.
+ *
+ * A row at sm+ (not lg+, unlike most responsive splits in this app, e.g.
+ * WelcomeScreen.tsx): this renders inside InsightsFunnel's modal, which is
+ * capped at max-w-2xl regardless of viewport, so the relevant breakpoint is
+ * real narrow phones (below sm), not desktop-vs-mobile — past that width
+ * the row already fits.
  */
 export function GrowthMultiplier() {
   return (
@@ -121,38 +121,24 @@ export function GrowthMultiplier() {
         <div
           key={followers}
           className={
-            "flex flex-col items-center justify-between gap-3 rounded-xl border p-3 text-center " +
+            "flex flex-col items-center justify-between gap-2 rounded-xl border p-3 text-center " +
             (highlight
-              ? "border-advsr-orange bg-gradient-to-b from-[#1f160a] to-advsr-surface shadow-[0_0_24px_rgba(255,107,0,0.25)]"
-              : followers === "10,000"
-                ? "border-advsr-orange bg-advsr-surface"
-                : "border-advsr-border bg-advsr-surface")
+              ? "border-advsr-orange bg-gradient-to-b from-[#1f160a] to-advsr-bg shadow-[0_0_24px_rgba(255,107,0,0.25)]"
+              : "border-advsr-border bg-advsr-bg")
           }
         >
           <div>
             <p
               className={
-                "font-heading text-lg font-bold " +
-                (highlight ? "text-advsr-orange-2" : followers === "10,000" ? "text-advsr-orange" : "text-advsr-text")
+                "font-heading text-xl font-bold " + (highlight ? "text-advsr-orange" : "text-advsr-text")
               }
             >
               {followers}
             </p>
-            <p
-              className={
-                "text-[10px] font-semibold uppercase tracking-wide " +
-                (highlight || followers === "10,000" ? "text-advsr-orange" : "text-advsr-muted")
-              }
-            >
-              followers
-            </p>
+            <p className={"text-xs " + (highlight ? "text-advsr-orange" : "text-advsr-muted")}>Followers</p>
           </div>
           <Icon />
-          <p
-            className={
-              "text-xs leading-snug " + (highlight ? "text-advsr-orange-2" : "text-advsr-muted")
-            }
-          >
+          <p className={"text-xs leading-snug " + (highlight ? "text-advsr-orange" : "text-advsr-muted")}>
             {caption}
           </p>
         </div>

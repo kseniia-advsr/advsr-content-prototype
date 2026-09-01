@@ -183,7 +183,7 @@ export function InsightsFunnel({ onFinish }: { onFinish: (result: InsightsFunnel
               <h3 className="mb-4 font-heading text-lg font-semibold text-advsr-text">
                 What the people who've built real audiences say
               </h3>
-              <p className="mb-4 text-sm text-advsr-muted">Same tool, three different results.</p>
+              <p className="mb-4 text-sm text-advsr-muted">Same tool, two different results.</p>
               <Testimonials />
               <p className="mt-5 text-sm text-advsr-muted">
                 Our recommendation: {RECOMMENDED_FREQUENCY_LABEL}. That's{" "}
@@ -259,16 +259,14 @@ export function InsightsFunnel({ onFinish }: { onFinish: (result: InsightsFunnel
 
           {step === "influence_scale" && (
             <>
-              <h3 className="mb-1 text-center font-heading text-lg font-bold uppercase tracking-wide text-advsr-text">
+              <h3 className="mb-1 font-heading text-lg font-semibold text-advsr-text">
                 Growth is a multiplier
               </h3>
-              <p className="mb-6 text-center text-sm font-semibold uppercase tracking-wide text-advsr-orange">
-                From 10 to 100,000+ followers
-              </p>
+              <p className="mb-5 text-sm text-advsr-muted">From 10 to 100,000+ followers.</p>
               <div className="my-6">
                 <GrowthMultiplier />
               </div>
-              <p className="text-center text-xs font-semibold uppercase tracking-wide text-advsr-muted">
+              <p className="text-center text-sm font-semibold text-advsr-text">
                 Every follower counts. Every step matters.
               </p>
             </>
