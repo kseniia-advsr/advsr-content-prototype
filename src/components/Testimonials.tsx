@@ -8,31 +8,12 @@ type Testimonial = {
 };
 
 /**
- * Three testimonials. Daniel Daggers' is real and verbatim, quoted exactly
- * as given, not paraphrased. Tommy Moore and Jennifer Purchase are
- * placeholders — see the TODO below. Headshots live directly in public/ (not
- * public/testimonials/ as originally described), referenced here with their
- * actual root-relative paths.
+ * Two real, verbatim testimonials, quoted exactly as given, not paraphrased.
+ * Headshots live directly in public/ (not public/testimonials/ as
+ * originally described), referenced here with their actual root-relative
+ * paths.
  */
 const TESTIMONIALS: Testimonial[] = [
-  // TODO: replace with real agent testimonials before this ships publicly.
-  // "Tommy Moore" and "Jennifer Purchase" are placeholders, not real people.
-  {
-    name: "Tommy Moore",
-    company: "DDRE Global",
-    quote:
-      "Had no idea what to post before this. Wrote one LinkedIn post with it, got three enquiries off it, took me ten minutes.",
-    highlights: ["three enquiries", "ten minutes"],
-    headshot: "/tommy-moore.png",
-  },
-  {
-    name: "Jennifer Purchase",
-    company: "DDRE Global",
-    quote:
-      "It's the confidence it gives me to post every day. I trusts it will help me say just the right thing, and somehow it still sounds like me.",
-    highlights: ["the confidence"],
-    headshot: "/jennifer-purchase.jpeg",
-  },
   {
     name: "Daniel Daggers",
     company: "DDRE Global",
@@ -40,6 +21,13 @@ const TESTIMONIALS: Testimonial[] = [
       "The agents who've actually built influence post constantly, that's not new. What's new is giving every advisor in the network that edge, without the hours it used to cost.",
     highlights: ["without the hours it used to cost"],
     headshot: "/daniel-daggers.png",
+  },
+  {
+    name: "Ryan Serhant",
+    company: "SERHANT.",
+    quote: "Let everyone know about it... post on social media, talk about it every chance you get.",
+    highlights: ["talk about it every chance you get"],
+    headshot: "/ryan-serhant.jpg",
   },
 ];
 
@@ -62,9 +50,9 @@ function renderHighlightedQuote(quote: string, highlights: string[]) {
 }
 
 /**
- * All three testimonials stacked in a single panel, not a carousel: every
- * quote is visible at once so the reader can compare "same tool, three
- * different results" without waiting on rotation.
+ * Both testimonials stacked in a single panel, not a carousel: every quote
+ * is visible at once so the reader can compare "same tool, two different
+ * results" without waiting on rotation.
  */
 export function Testimonials() {
   return (
