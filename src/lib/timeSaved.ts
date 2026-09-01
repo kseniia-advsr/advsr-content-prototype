@@ -1,17 +1,18 @@
 /**
- * Hours given back per post the advisor no longer has to write by hand. This
- * is the real product pitch (an hour back per post), not a smaller unrelated
- * assumption. Named constant so it's easy to tune later without hunting
- * through prose.
+ * Hours given back per post the advisor no longer has to write by hand.
+ * ~20 minutes per post per platform, not a full hour — a full hour read as
+ * an exaggeration in review. Named constant so it's easy to tune later
+ * without hunting through prose.
  */
-export const HOURS_SAVED_PER_POST = 1;
+export const HOURS_SAVED_PER_POST = 1 / 3;
 
 /**
  * Recommended posting cadence, in posts per week. Used both for the "actual
  * recommended frequency" stated after the daily-posting interstitial, and to
- * scale the time-saved calculation to a realistic week.
+ * scale the time-saved calculation to a realistic week. 10/week is a floor,
+ * not a target — 5/week was reviewed as too low.
  */
-export const RECOMMENDED_POSTS_PER_WEEK = 5;
+export const RECOMMENDED_POSTS_PER_WEEK = 10;
 
 export type TimeSaved = {
   hoursPerWeek: number;

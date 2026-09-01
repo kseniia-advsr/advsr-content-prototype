@@ -11,11 +11,11 @@ describe("calculateTimeSaved", () => {
     expect(result.hoursPerYear).toBeCloseTo(expectedHoursPerWeek * 52, 1);
   });
 
-  it("matches the real product pitch at the recommended cadence: 5/week, ~22/month, 260/year", () => {
+  it("matches the real product pitch at the recommended cadence: 3.3/week, ~14.4/month, 173.3/year", () => {
     const result = calculateTimeSaved();
-    expect(result.hoursPerWeek).toBe(5);
-    expect(result.hoursPerMonth).toBeCloseTo(21.7, 1);
-    expect(result.hoursPerYear).toBe(260);
+    expect(result.hoursPerWeek).toBe(3.3);
+    expect(result.hoursPerMonth).toBeCloseTo(14.4, 1);
+    expect(result.hoursPerYear).toBe(173.3);
   });
 
   it("scales correctly with custom inputs", () => {
