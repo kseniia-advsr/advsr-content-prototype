@@ -414,7 +414,8 @@ export default function App() {
           onSubmit={handleComposerSubmit}
           onFullSuiteRequested={handleFullSuiteRequested}
           onPickPlatform={handlePickPlatform}
-          remainingPlatforms={PLATFORM_CONTENT_TYPES.filter((p) => remainingPlatformIds.includes(p.id))}
+          platforms={PLATFORM_CONTENT_TYPES}
+          remainingPlatformIds={remainingPlatformIds}
           onGetFullAccess={() => patch({ waitlistOpen: true, waitlistDismissable: false })}
           disabled={isLoading || funnelOpen}
           generatingContentTypeId={isLoading ? pendingContentType : null}

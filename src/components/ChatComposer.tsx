@@ -19,7 +19,8 @@ const PLACEHOLDER_ROTATION_MS = 7000;
  * "answer": replying to a clarifying question — no picker, short
  *   single-line placeholder.
  * "picking": at least one platform has generated and platforms remain — the
- *   composer is replaced by a picker for the next platform, plus Full Suite.
+ *   composer is replaced by a picker for every platform, plus Full Suite;
+ *   ones already generated render checked and faded rather than disappearing.
  * "done": every platform has been used — replaced by a Get Full Access
  *   button in the same slot.
  */
@@ -49,7 +50,8 @@ export function ChatComposer({
   onSubmit,
   onFullSuiteRequested,
   onPickPlatform,
-  remainingPlatforms,
+  platforms,
+  remainingPlatformIds,
   onGetFullAccess,
   disabled,
   generatingContentTypeId,
@@ -60,8 +62,10 @@ export function ChatComposer({
   onFullSuiteRequested: () => void;
   /** A platform pill was clicked in "picking" mode — re-sends the original topic for that platform. */
   onPickPlatform: (contentType: ContentTypeId) => void;
-  /** Platforms not yet used, shown in "picking" mode. */
-  remainingPlatforms: ContentTypeOption[];
+  /** Every full-suite platform, shown in "picking" mode — not just the remaining ones, since generated platforms stay visible (checked, faded) instead of disappearing. */
+  platforms: ContentTypeOption[];
+  /** Platforms not yet generated — everything else in `platforms` renders as already done. */
+  remainingPlatformIds: ContentTypeId[];
   onGetFullAccess: () => void;
   disabled: boolean;
   /** The platform currently generating, so "picking" mode can show the loading state on the pill the visitor just clicked rather than leaving that clear only in the transcript above. Null outside of an in-flight platform pick. */
@@ -93,7 +97,7 @@ export function ChatComposer({
   const placeholder = disabled ? "Thinking…" : mode === "topic" ? STARTER_PROMPTS[placeholderIndex] : "Your answer…";
 
   if (mode === "picking") {
-    const generatingOption = remainingPlatforms.find((p) => p.id === generatingContentTypeId);
+    const generatingOption = platforms.find((p) => p.id === generatingContentTypeId);
     return (
       <div className="bg-advsr-bg px-6 py-4">
         <div className="mx-auto w-full max-w-3xl rounded-2xl border border-advsr-border bg-advsr-surface p-4 shadow-lg">
@@ -108,22 +112,26 @@ export function ChatComposer({
             )}
           </p>
           <div className="flex flex-wrap gap-2">
-            {remainingPlatforms.map((option) => {
+            {platforms.map((option) => {
               const isGenerating = option.id === generatingContentTypeId;
+              const isDone = !remainingPlatformIds.includes(option.id);
               return (
                 <button
                   key={option.id}
                   type="button"
                   onClick={() => onPickPlatform(option.id)}
-                  disabled={disabled}
+                  disabled={disabled || isDone}
                   className={
                     "rounded-full border px-3 py-1.5 text-sm transition-colors disabled:cursor-not-allowed " +
                     (isGenerating
                       ? "border-advsr-orange bg-advsr-orange/10 text-advsr-orange"
-                      : "border-advsr-border text-advsr-muted hover:border-advsr-orange-2 hover:text-advsr-text disabled:opacity-50")
+                      : isDone
+                        ? "border-advsr-border text-advsr-muted opacity-50"
+                        : "border-advsr-border text-advsr-muted hover:border-advsr-orange-2 hover:text-advsr-text disabled:opacity-50")
                   }
                 >
                   {option.label}
+                  {isDone ? " ✓" : ""}
                 </button>
               );
             })}
