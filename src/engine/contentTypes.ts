@@ -47,7 +47,7 @@ export const CONTENT_TYPES: ContentTypeOption[] = [
   ...PLATFORM_CONTENT_TYPES,
   {
     id: "full_suite",
-    label: "Full suite",
+    label: "For all platforms",
     description: "Every deliverable across all platforms",
   },
 ];

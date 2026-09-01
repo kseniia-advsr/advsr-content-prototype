@@ -33,7 +33,7 @@ function FullSuiteButton({ onClick, disabled }: { onClick: () => void; disabled:
       disabled={disabled}
       className="rounded-full bg-advsr-orange px-3 py-1.5 text-sm font-semibold text-black transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
     >
-      ✨ Full Suite
+      ✨ For all platforms
     </button>
   );
 }
