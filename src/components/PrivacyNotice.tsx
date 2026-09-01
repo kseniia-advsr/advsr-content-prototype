@@ -18,7 +18,7 @@ const LEGAL_BASES = [
     basis: "Taken at your request / performance of a contract with you (Art. 6(1)(b))",
   },
   {
-    purpose: "Understand which styles, topics and price points are popular, to price and refine the finished product",
+    purpose: "Understand which styles, topics and price points are popular, to refine this tool",
     whatWeUse: "Tone-of-voice answers (aggregated/analysed) and pricing feedback",
     basis: "Legitimate interests, product development (Art. 6(1)(f)); you can object at any time",
   },
@@ -28,7 +28,7 @@ const LEGAL_BASES = [
     basis: "Consent (Art. 6(1)(a)). You can withdraw this at any time",
   },
   {
-    purpose: "Keep the free tool secure and prevent abuse",
+    purpose: "Keep the tool secure and prevent abuse",
     whatWeUse: "IP address and basic technical data",
     basis: "Legitimate interests, securing our systems (Art. 6(1)(f))",
   },
@@ -84,7 +84,7 @@ export function PrivacyNotice({ onClose }: { onClose: () => void }) {
         <Section number="1" title="Introduction">
           <p>
             This notice explains how ADVSR Ltd ("ADVSR", "we", "us", "our") collects, uses, stores and
-            shares personal data when you use the ADVSR Content Engine, a free tool that generates
+            shares personal data when you use the ADVSR Content Engine, a tool that generates
             sample real estate marketing content and lets you join our waitlist.
           </p>
           <p>
@@ -95,7 +95,8 @@ export function PrivacyNotice({ onClose }: { onClose: () => void }) {
           <p>
             We are a UK company. This notice is written to comply with the UK GDPR and the Data
             Protection Act 2018 and, because people use this tool from many countries, the EU GDPR
-            and, where relevant, other data protection laws that may apply to you locally (see
+            and other data protection laws that may apply to you locally, including US state privacy
+            laws such as the California Consumer Privacy Act, and equivalent laws elsewhere (see
             Section 12).
           </p>
         </Section>
@@ -106,14 +107,14 @@ export function PrivacyNotice({ onClose }: { onClose: () => void }) {
             decide how and why it's used.
           </p>
           <p>Registered/business address: 298 Regent's Park Road, London, N3 2SZ, United Kingdom</p>
-          <p>Contact for privacy questions: Sara Allin, COO, sara@advsr.ai</p>
+          <p>Contact for privacy questions: hi@advsr.ai</p>
         </Section>
 
         <Section number="3" title="What information we collect">
           <p className="font-medium text-advsr-text">a) Information you give us directly</p>
           <p>Your name and email address, when you join the waitlist.</p>
           <p>Your company or the market you work in, if you choose to tell us (optional).</p>
-          <p>What you'd expect to pay for the finished product, if you answer that question.</p>
+          <p>What you'd expect to pay, if you answer that question.</p>
           <p>Whether you already have an advsr.ai membership login.</p>
           <p>
             Your answers to the tone-of-voice questionnaire, how you want your content to sound and
@@ -135,7 +136,7 @@ export function PrivacyNotice({ onClose }: { onClose: () => void }) {
           <p className="mt-4 font-medium text-advsr-text">c) Information collected automatically</p>
           <p>
             Your IP address and basic technical/device information (e.g. browser type), used only to
-            prevent the free tool being abused or spammed and to keep the service running reliably. We
+            prevent the tool being abused or spammed and to keep the service running reliably. We
             do not use this to build advertising profiles.
           </p>
 
@@ -150,8 +151,8 @@ export function PrivacyNotice({ onClose }: { onClose: () => void }) {
 
         <Section number="4" title="Why we use your information, and our legal basis">
           <p>
-            We only use your information for the purposes below, all connected to running this tool,
-            understanding demand, and shaping the finished product. We do not sell your data, use it
+            We only use your information for the purposes below, all connected to running this tool
+            and understanding demand. We do not sell your data, use it
             for third-party advertising, or share it with data brokers.
           </p>
           <div className="space-y-3">
@@ -207,7 +208,7 @@ export function PrivacyNotice({ onClose }: { onClose: () => void }) {
         <Section number="7" title="How long we keep your information">
           <p>
             We keep waitlist and questionnaire data for as long as we're actively using it to develop
-            and price the product, and in any event no longer than 12 months after your submission,
+            this tool and inform pricing, and in any event no longer than 12 months after your submission,
             unless:
           </p>
           <p>you ask us to delete it sooner;</p>
@@ -239,10 +240,14 @@ export function PrivacyNotice({ onClose }: { onClose: () => void }) {
           <p>object to processing based on our legitimate interests (objection); and</p>
           <p>withdraw consent at any time, where we rely on consent (e.g. waitlist follow-up emails).</p>
           <p>
-            To exercise any of these rights, contact us at sara@advsr.ai. We aim to respond within one
+            To exercise any of these rights, contact us at hi@advsr.ai. We aim to respond within one
             month. If you're not satisfied with our response, you can complain to the UK Information
             Commissioner's Office (ico.org.uk) or, if you're based in the EU, your local data
             protection authority.
+          </p>
+          <p>
+            As a matter of policy, we aim to offer these same core rights to everyone who uses this
+            tool, wherever you're based. Section 12 covers points specific to certain regions.
           </p>
         </Section>
 
@@ -266,28 +271,47 @@ export function PrivacyNotice({ onClose }: { onClose: () => void }) {
           </p>
         </Section>
 
-        <Section number="12" title="Using this tool outside the UK">
+        <Section number="12" title="International users and additional rights">
           <p>
             This tool is available globally. If you're in the EEA, the EU GDPR applies to our
-            processing of your data in the same way as the UK GDPR. If you're elsewhere, for example
-            the United States, UAE, Singapore, or anywhere else, local data protection laws (such as
-            US state privacy laws) may give you additional rights beyond those set out here. Where
-            local law requires additional disclosures or a different legal basis, we will comply with
-            that law for users in that location.
+            processing of your data in the same way as the UK GDPR. Wherever local law requires
+            additional disclosures, a different legal basis, or gives you further rights, we will
+            comply with that law for users in that location. The sections below cover some of the
+            frameworks we most commonly see.
+          </p>
+
+          <p className="mt-4 font-medium text-advsr-text">a) California and other US states</p>
+          <p>
+            If you're a California resident, the California Consumer Privacy Act, as amended by the
+            CPRA, gives you the right to know what personal information we hold about you, request
+            its deletion or correction, and opt out of the sale or sharing of personal information.
+            We do not sell personal information or share it for cross-context behavioural
+            advertising, so there is nothing to opt out of in practice. We will not discriminate
+            against you for exercising any of these rights. Similar rights may apply if you're based
+            in other US states with their own privacy laws, such as Virginia, Colorado, Connecticut,
+            or Utah. The contact route in Section 9 applies equally here.
+          </p>
+
+          <p className="mt-4 font-medium text-advsr-text">b) Other regions</p>
+          <p>
+            If you're based in Brazil, Canada, Australia, Singapore, South Africa, the UAE, India, or
+            another jurisdiction with its own data protection law, for example the LGPD, PIPEDA, the
+            Privacy Act 1988, the PDPA, or POPIA, we aim to honour the same core rights set out in
+            Section 9 for you as well, to the extent they apply, even where local law does not
+            strictly require it.
           </p>
         </Section>
 
         <Section number="13" title="Changes to this notice">
           <p>
-            We may update this notice as the product develops, for example, when this free prototype
-            becomes a paid, logged-in feature (see our main privacy policy for how that works). We'll
+            We may update this notice from time to time as the tool develops. We'll
             post the date of the latest version at the top of this page and, for material changes, let
             waitlist members know by email.
           </p>
         </Section>
 
         <Section number="14" title="Contact us">
-          <p>Questions about this notice or how we handle your data: sara@advsr.ai.</p>
+          <p>Questions about this notice or how we handle your data: hi@advsr.ai.</p>
         </Section>
       </div>
     </div>
